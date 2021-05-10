@@ -10,6 +10,7 @@
     }],
     "require": {
         "php": "^7.2|^8.0",
+        "psr/container": "^1.0",
         "symfony/polyfill-php80": "^1.22",
 
         "decodelabs/glitch-support": "^0.3",
