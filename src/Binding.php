@@ -131,7 +131,7 @@ class Binding
     /**
      * Prepare factory or instance
      *
-     * @param mixed $target
+     * @param string|Closure|object|null $target
      */
     public function setTarget($target): Binding
     {
@@ -471,6 +471,7 @@ class Binding
      */
     public function newInstance(): object
     {
+        /** @var object $output */
         $output = $this->container->call($this->factory, $this->params);
         return $this->prepareInstance($output);
     }
