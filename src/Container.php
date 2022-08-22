@@ -66,7 +66,7 @@ class Container implements ContainerInterface
     /**
      * Take a list of provider types and register
      *
-     * @param class-string<Provider> ...$providers
+     * @phpstan-param class-string<Provider> ...$providers
      */
     public function registerProviders(string ...$providers): void
     {
@@ -78,7 +78,7 @@ class Container implements ContainerInterface
     /**
      * Instantiate provider and register
      *
-     * @param class-string<Provider> $provider
+     * @phpstan-param class-string<Provider> $provider
      */
     public function registerProvider(string $provider): void
     {
