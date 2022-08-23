@@ -20,12 +20,5 @@ composer require decodelabs/pandora
 
 Coming shortly...
 
-### PHP version
-
-_Please note, the final v1 releases of all Decode Labs libraries will target **PHP8** or above._
-
-Current support for earlier versions of PHP will be phased out in the coming months.
-
-
 ## Licensing
 Pandora is licensed under the MIT License. See [LICENSE](./LICENSE) for the full license text.
