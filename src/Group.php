@@ -18,14 +18,16 @@ class Group extends Binding
     /**
      * @var array<Binding>
      */
-    protected $bindings = [];
+    protected array $bindings = [];
 
 
     /**
      * Init with Container and type
      */
-    public function __construct(Container $container, string $type)
-    {
+    public function __construct(
+        Container $container,
+        string $type
+    ) {
         parent::__construct($container, $type, null, false, true);
         unset($this->params, $this->target);
     }
@@ -34,11 +36,10 @@ class Group extends Binding
 
     /**
      * Noop
-     *
-     * @param string|Closure|object|null $target
      */
-    public function setTarget($target): Binding
-    {
+    public function setTarget(
+        string|object|null $target
+    ): static {
         throw Exceptional::Implementation(
             'setTarget is not used for groups'
         );
@@ -46,10 +47,8 @@ class Group extends Binding
 
     /**
      * Noop
-     *
-     * @return string|Closure|object|null
      */
-    public function getTarget()
+    public function getTarget(): string|object|null
     {
         throw Exceptional::Implementation(
             'getTarget is not used for groups'
@@ -59,7 +58,7 @@ class Group extends Binding
     /**
      * Noop
      */
-    public function setFactory(Closure $factory): Binding
+    public function setFactory(Closure $factory): static
     {
         throw Exceptional::Implementation(
             'setFactory is not used for groups'
@@ -90,7 +89,7 @@ class Group extends Binding
      *
      * @return $this
      */
-    public function addBinding(Binding $binding): Binding
+    public function addBinding(Binding $binding): static
     {
         $this->bindings[] = $binding;
         return $this;
@@ -130,7 +129,7 @@ class Group extends Binding
      *
      * @return $this
      */
-    public function clearPreparators(): Binding
+    public function clearPreparators(): static
     {
         $this->preparators = [];
 
@@ -146,11 +145,12 @@ class Group extends Binding
     /**
      * Add an injected call parameter
      *
-     * @param mixed $value
      * @return $this
      */
-    public function inject(string $name, $value): Binding
-    {
+    public function inject(
+        string $name,
+        mixed $value
+    ): static {
         foreach ($this->bindings as $binding) {
             $binding->inject($name, $value);
         }
@@ -160,10 +160,8 @@ class Group extends Binding
 
     /**
      * Look up an injected param
-     *
-     * @return mixed
      */
-    public function getParam(string $name)
+    public function getParam(string $name): mixed
     {
         foreach ($this->bindings as $binding) {
             if ($binding->hasParam($name)) {
@@ -180,7 +178,7 @@ class Group extends Binding
      * @param array<string, mixed> $params
      * @return $this
      */
-    public function addParams(array $params): Binding
+    public function addParams(array $params): static
     {
         foreach ($this->bindings as $binding) {
             foreach ($params as $key => $value) {
@@ -210,7 +208,7 @@ class Group extends Binding
      *
      * @return $this
      */
-    public function removeParam(string $name): Binding
+    public function removeParam(string $name): static
     {
         foreach ($this->bindings as $binding) {
             $binding->removeParam($name);
@@ -224,7 +222,7 @@ class Group extends Binding
      *
      * @return $this
      */
-    public function clearParams(): Binding
+    public function clearParams(): static
     {
         foreach ($this->bindings as $binding) {
             $binding->clearParams();
@@ -238,7 +236,7 @@ class Group extends Binding
     /**
      * Noop
      */
-    public function setInstance(object $instance): Binding
+    public function setInstance(object $instance): static
     {
         throw Exceptional::Implementation(
             'setFactory is not used for groups'
@@ -250,7 +248,7 @@ class Group extends Binding
      *
      * @return $this
      */
-    public function forgetInstance(): Binding
+    public function forgetInstance(): static
     {
         foreach ($this->bindings as $binding) {
             $binding->forgetInstance();
