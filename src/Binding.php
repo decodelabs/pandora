@@ -439,6 +439,12 @@ class Binding
      */
     public function newInstance(): object
     {
+        if ($this->factory === null) {
+            throw Exceptional::Setup(
+                'Binding for '.$this->type.' does not have a factory yet'
+            );
+        }
+
         /** @var object $output */
         $output = $this->container->call($this->factory, $this->params);
         return $this->prepareInstance($output);
