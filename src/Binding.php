@@ -441,7 +441,7 @@ class Binding
     {
         if ($this->factory === null) {
             throw Exceptional::Setup(
-                'Binding for '.$this->type.' does not have a factory yet'
+                'Binding for ' . $this->type . ' does not have a factory yet'
             );
         }
 
