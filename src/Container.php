@@ -30,27 +30,24 @@ class Container implements ContainerInterface
     /**
      * @var array<string, Binding>
      */
-    protected $bindings = [];
+    protected array $bindings = [];
 
     /**
      * @phpstan-var array<class-string, Provider>
      */
-    protected $providers = [];
+    protected array $providers = [];
 
     /**
      * @var array<string, string>
      */
-    protected $aliases = [];
+    protected array $aliases = [];
 
     /**
      * @var array<string, callable>
      */
-    protected $autoAliasers = [];
+    protected array $autoAliasers = [];
 
-    /**
-     * @var EventDispatcher
-     */
-    protected $events;
+    protected EventDispatcher $events;
 
 
 
@@ -156,8 +153,10 @@ class Container implements ContainerInterface
     /**
      * Register auto aliaser
      */
-    public function registerAutoAliaser(string $name, callable $aliaser): void
-    {
+    public function registerAutoAliaser(
+        string $name,
+        callable $aliaser
+    ): void {
         $this->autoAliasers[$name] = $aliaser;
     }
 
@@ -174,11 +173,11 @@ class Container implements ContainerInterface
 
     /**
      * Bind a concrete type or instance to interface
-     *
-     * @param string|Closure|object|null $target
      */
-    public function bind(string $type, $target = null): Binding
-    {
+    public function bind(
+        string $type,
+        string|object|null $target = null
+    ): Binding {
         // Create binding
         $binding = new Binding($this, $type, $target);
         $type = $binding->getType();
@@ -204,11 +203,12 @@ class Container implements ContainerInterface
 
     /**
      * Only bind if it's not bound already
-     *
-     * @param string|Closure|object|null $target
      */
-    public function bindLocked(string $type, $target = null, callable $callback = null): Binding
-    {
+    public function bindLocked(
+        string $type,
+        string|object|null $target = null,
+        callable $callback = null
+    ): Binding {
         // Return old binding if exists
         if (isset($this->bindings[$type])) {
             return new Binding($this, $type, $target);
@@ -227,11 +227,11 @@ class Container implements ContainerInterface
 
     /**
      * Add binding as part of a group
-     *
-     * @param string|Closure|object|null ...$targets
      */
-    public function bindToGroup(string $type, ...$targets): Binding
-    {
+    public function bindToGroup(
+        string $type,
+        string|object|null ...$targets
+    ): Binding {
         if (isset($this->bindings[$type])) {
             // Get current binding
             $group = $this->bindings[$type];
@@ -267,21 +267,22 @@ class Container implements ContainerInterface
 
     /**
      * Bind a single instance concrete type
-     *
-     * @param string|Closure|object|null $target
      */
-    public function bindShared(string $type, $target = null): Binding
-    {
+    public function bindShared(
+        string $type,
+        string|object|null $target = null
+    ): Binding {
         return $this->bind($type, $target)->setShared(true);
     }
 
     /**
      * Bind single instance only if it's not bound already
-     *
-     * @param string|Closure|object|null $target
      */
-    public function bindSharedLocked(string $type, $target = null, callable $callback = null): Binding
-    {
+    public function bindSharedLocked(
+        string $type,
+        string|object|null $target = null,
+        callable $callback = null
+    ): Binding {
         // Return current binding if exists
         if (isset($this->bindings[$type])) {
             return $this->bindings[$type];
@@ -300,11 +301,11 @@ class Container implements ContainerInterface
 
     /**
      * Add singleton binding as group
-     *
-     * @param string|Closure|object|null $target
      */
-    public function bindSharedToGroup(string $type, $target = null): Binding
-    {
+    public function bindSharedToGroup(
+        string $type,
+        string|object|null $target = null
+    ): Binding {
         return $this->bindToGroup($type, $target)->setShared(true);
     }
 
@@ -314,8 +315,10 @@ class Container implements ContainerInterface
      *
      * @return $this
      */
-    public function alias(string $type, string $alias): Container
-    {
+    public function alias(
+        string $type,
+        string $alias
+    ): static {
         $this->getBinding($type)->alias($alias);
         return $this;
     }
@@ -366,8 +369,10 @@ class Container implements ContainerInterface
     /**
      * Quietly add $alias to the reference list
      */
-    public function registerAlias(string $type, string $alias): void
-    {
+    public function registerAlias(
+        string $type,
+        string $alias
+    ): void {
         $this->aliases[$alias] = $type;
     }
 
@@ -383,11 +388,8 @@ class Container implements ContainerInterface
 
     /**
      * Build or retrieve an instance
-     *
-     * @param string $type
-     * @return object
      */
-    public function get($type)
+    public function get(string $type): object
     {
         return $this->getBinding($type)
             ->getInstance();
@@ -396,11 +398,12 @@ class Container implements ContainerInterface
     /**
      * Build or retrieve an instance using params
      *
-     * @param string $type
      * @param array<string, mixed> $params
      */
-    public function getWith(string $type, array $params = []): object
-    {
+    public function getWith(
+        string $type,
+        array $params = []
+    ): object {
         return $this->getBinding($type)
             ->addParams($params)
             ->getInstance();
@@ -409,7 +412,6 @@ class Container implements ContainerInterface
     /**
      * Return array of bound instances
      *
-     * @param string $type
      * @return array<object>
      */
     public function getGroup(string $type): array
@@ -423,8 +425,10 @@ class Container implements ContainerInterface
      *
      * @return $this
      */
-    public function each(string $type, callable $callback): Container
-    {
+    public function each(
+        string $type,
+        callable $callback
+    ): static {
         foreach ($this->getGroup($type) as $instance) {
             $callback($instance, $this);
         }
@@ -435,10 +439,8 @@ class Container implements ContainerInterface
 
     /**
      * Is this type or alias bound?
-     *
-     * @param string $type
      */
-    public function has($type): bool
+    public function has(string $type): bool
     {
         return
             isset($this->bindings[$type]) ||
@@ -452,7 +454,7 @@ class Container implements ContainerInterface
      *
      * @return $this
      */
-    public function remove(string $type): Container
+    public function remove(string $type): static
     {
         // Remove provider reference
         unset($this->providers[$type]);
@@ -540,8 +542,10 @@ class Container implements ContainerInterface
      *
      * @return $this
      */
-    public function prepareWith(string $type, callable $callback): Container
-    {
+    public function prepareWith(
+        string $type,
+        callable $callback
+    ): static {
         $this->getBinding($type)->prepareWith($callback);
         return $this;
     }
@@ -549,11 +553,13 @@ class Container implements ContainerInterface
     /**
      * Add a single injection parameter
      *
-     * @param mixed $value
      * @return $this
      */
-    public function inject(string $type, string $name, $value): Container
-    {
+    public function inject(
+        string $type,
+        string $name,
+        mixed $value
+    ): static {
         $this->getBinding($type)->inject($name, $value);
         return $this;
     }
@@ -564,8 +570,10 @@ class Container implements ContainerInterface
      * @param array<string, mixed> $params
      * @return $this
      */
-    public function addParams(string $type, array $params): Container
-    {
+    public function addParams(
+        string $type,
+        array $params
+    ): static {
         $this->getBinding($type)->addParams($params);
         return $this;
     }
@@ -575,7 +583,7 @@ class Container implements ContainerInterface
      *
      * @return $this
      */
-    public function clearParams(string $type): Container
+    public function clearParams(string $type): static
     {
         $this->getBinding($type)->clearParams();
         return $this;
@@ -586,7 +594,7 @@ class Container implements ContainerInterface
      *
      * @return $this
      */
-    public function clearAllParams(): Container
+    public function clearAllParams(): static
     {
         foreach ($this->bindings as $binding) {
             $binding->clearParams();
@@ -602,7 +610,7 @@ class Container implements ContainerInterface
      *
      * @return $this
      */
-    public function clear(): Container
+    public function clear(): static
     {
         $this->bindings = [];
         $this->aliases = [];
@@ -622,8 +630,11 @@ class Container implements ContainerInterface
      * @phpstan-param class-string ...$interfaces
      * @phpstan-return T
      */
-    public function newInstanceOf(string $type, array $params = [], string ...$interfaces): object
-    {
+    public function newInstanceOf(
+        string $type,
+        array $params = [],
+        string ...$interfaces
+    ): object {
         // Lookup / create binding
         if (!$binding = $this->lookupBinding($type)) {
             $binding = new Binding($this, $type, $type, false);
@@ -653,8 +664,11 @@ class Container implements ContainerInterface
      * @phpstan-param class-string ...$interfaces
      * @phpstan-return T
      */
-    public function buildInstanceOf(string $type, array $params = [], string ...$interfaces): object
-    {
+    public function buildInstanceOf(
+        string $type,
+        array $params = [],
+        string ...$interfaces
+    ): object {
         // Create reflection
         $reflector = new ReflectionClass($type);
 
@@ -688,8 +702,10 @@ class Container implements ContainerInterface
      *
      * @phpstan-param class-string ...$interfaces
      */
-    protected function testInterfaces(object $object, string ...$interfaces): void
-    {
+    protected function testInterfaces(
+        object $object,
+        string ...$interfaces
+    ): void {
         foreach ($interfaces as $interface) {
             if (!$object instanceof $interface) {
                 throw Exceptional::Implementation(
@@ -705,8 +721,10 @@ class Container implements ContainerInterface
      * @param array<string, mixed> $params
      * @return mixed
      */
-    public function call(callable $function, array $params = [])
-    {
+    public function call(
+        callable $function,
+        array $params = []
+    ): mixed {
         if (is_array($function)) {
             // Reflect array callable
             $classRef = new ReflectionObject($function[0]);
@@ -740,8 +758,10 @@ class Container implements ContainerInterface
      * @param array<string, mixed> $params
      * @return array<mixed>
      */
-    protected function prepareArgs(array $paramReflectors, array $params): array
-    {
+    protected function prepareArgs(
+        array $paramReflectors,
+        array $params
+    ): array {
         $args = [];
 
         foreach ($paramReflectors as $reflector) {
@@ -793,7 +813,7 @@ class Container implements ContainerInterface
      *
      * @return $this
      */
-    public function forgetAllInstances(): Container
+    public function forgetAllInstances(): static
     {
         foreach ($this->bindings as $binding) {
             $binding->forgetInstance();
@@ -810,8 +830,10 @@ class Container implements ContainerInterface
      *
      * @return $this
      */
-    public function afterResolving(string $type, callable $callback): Container
-    {
+    public function afterResolving(
+        string $type,
+        callable $callback
+    ): static {
         $this->events->after('resolving.' . $type, $callback);
         return $this;
     }
@@ -819,8 +841,10 @@ class Container implements ContainerInterface
     /**
      * Trigger events on building a new instance
      */
-    public function triggerAfterResolving(Binding $binding, object $instance): void
-    {
+    public function triggerAfterResolving(
+        Binding $binding,
+        object $instance
+    ): void {
         $type = $binding->getType();
 
         $this->events->withAfter(['resolving.' . $type, 'resolving.*'], function ($events) use ($type, $instance) {
@@ -834,8 +858,10 @@ class Container implements ContainerInterface
      *
      * @return $this
      */
-    public function afterRebinding(string $type, callable $callback): Container
-    {
+    public function afterRebinding(
+        string $type,
+        callable $callback
+    ): static {
         $this->events->after('rebinding.' . $type, $callback);
         return $this;
     }
@@ -868,11 +894,11 @@ class Container implements ContainerInterface
 
     /**
      * Alias bind()
-     *
-     * @param string|Closure|object|null $target
      */
-    public function __set(string $type, $target): void
-    {
+    public function __set(
+        string $type,
+        string|object|null $target
+    ): void {
         $this->bind($type, $target);
     }
 
@@ -900,7 +926,7 @@ class Container implements ContainerInterface
      *
      * @param string $type
      */
-    public function offsetGet($type): object
+    public function offsetGet(mixed $type): object
     {
         return $this->get($type);
     }
@@ -911,8 +937,10 @@ class Container implements ContainerInterface
      * @param string $type
      * @param string|Closure|object|null $target
      */
-    public function offsetSet($type, $target): void
-    {
+    public function offsetSet(
+        mixed $type,
+        mixed $target
+    ): void {
         $this->bind($type, $target);
     }
 
@@ -921,7 +949,7 @@ class Container implements ContainerInterface
      *
      * @param string $type
      */
-    public function offsetExists($type): bool
+    public function offsetExists(mixed $type): bool
     {
         return $this->has($type);
     }
@@ -931,7 +959,7 @@ class Container implements ContainerInterface
      *
      * @param string $type
      */
-    public function offsetUnset($type): void
+    public function offsetUnset(mixed $type): void
     {
         $this->remove($type);
     }

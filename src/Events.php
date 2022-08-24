@@ -16,15 +16,17 @@ class Events
     /**
      * @var array<string, array<string, callable>>
      */
-    protected $events = [];
+    protected array $events = [];
 
     /**
      * Register an event for before trigger
      *
      * @return $this
      */
-    public function before(string $id, callable $callback): Events
-    {
+    public function before(
+        string $id,
+        callable $callback
+    ): static {
         $this->events['<' . $id][$this->hashCallable($callback)] = $callback;
         return $this;
     }
@@ -34,8 +36,10 @@ class Events
      *
      * @return $this
      */
-    public function after(string $id, callable $callback): Events
-    {
+    public function after(
+        string $id,
+        callable $callback
+    ): static {
         $this->events['>' . $id][$this->hashCallable($callback)] = $callback;
         return $this;
     }
@@ -63,11 +67,12 @@ class Events
     /**
      * Trigger before handlers
      *
-     * @param mixed ...$args
      * @return $this
      */
-    public function triggerBefore(string $id, ...$args): Events
-    {
+    public function triggerBefore(
+        string $id,
+        mixed ...$args
+    ): static {
         foreach ($this->events['<' . $id] ?? [] as $callback) {
             $callback(...$args);
         }
@@ -78,11 +83,12 @@ class Events
     /**
      * Trigger after handlers
      *
-     * @param mixed ...$args
      * @return $this
      */
-    public function triggerAfter(string $id, ...$args): Events
-    {
+    public function triggerAfter(
+        string $id,
+        mixed ...$args
+    ): static {
         foreach ($this->events['>' . $id] ?? [] as $callback) {
             $callback(...$args);
         }
@@ -144,8 +150,10 @@ class Events
      * @param array<string> $ids
      * @return $this
      */
-    public function withBefore(array $ids, callable $callback): Events
-    {
+    public function withBefore(
+        array $ids,
+        callable $callback
+    ): static {
         if ($this->hasBefore(...$ids)) {
             $callback($this);
         }
@@ -159,8 +167,10 @@ class Events
      * @param array<string> $ids
      * @return $this
      */
-    public function withAfter(array $ids, callable $callback): Events
-    {
+    public function withAfter(
+        array $ids,
+        callable $callback
+    ): static {
         if ($this->hasAfter(...$ids)) {
             $callback($this);
         }
@@ -174,8 +184,10 @@ class Events
      * @param array<string> $ids
      * @return $this
      */
-    public function with(array $ids, callable $callback): Events
-    {
+    public function with(
+        array $ids,
+        callable $callback
+    ): static {
         if ($this->has(...$ids)) {
             $callback($this);
         }
@@ -190,8 +202,10 @@ class Events
      *
      * @return $this
      */
-    public function removeBefore(string $id, callable $callback = null): Events
-    {
+    public function removeBefore(
+        string $id,
+        callable $callback = null
+    ): static {
         if ($callback) {
             unset($this->events['<' . $id][$this->hashCallable($callback)]);
         } else {
@@ -206,8 +220,10 @@ class Events
      *
      * @return $this
      */
-    public function removeAfter(string $id, callable $callback = null): Events
-    {
+    public function removeAfter(
+        string $id,
+        callable $callback = null
+    ): static {
         if ($callback) {
             unset($this->events['>' . $id][$this->hashCallable($callback)]);
         } else {
@@ -222,8 +238,10 @@ class Events
      *
      * @return $this
      */
-    public function remove(string $id, callable $callback = null): Events
-    {
+    public function remove(
+        string $id,
+        callable $callback = null
+    ): static {
         $this->removeBefore($id, $callback);
         $this->removeAfter($id, $callback);
 
@@ -235,7 +253,7 @@ class Events
      *
      * @return $this
      */
-    public function clear(): Events
+    public function clear(): static
     {
         $this->events = [];
         return $this;

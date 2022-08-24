@@ -22,64 +22,36 @@ use ReflectionFunction;
 class Binding
 {
     /**
-     * @var string
      * @phpstan-var class-string
      */
-    protected $type;
+    protected string $type;
+    protected ?string $alias = null;
+    protected string|object|null $target;
 
-    /**
-     * @var string|null
-     */
-    protected $alias;
-
-    /**
-     * @var string|Closure|object|null
-     */
-    protected $target;
-
-
-    /**
-     * @var Closure
-     */
-    protected $factory;
-
-    /**
-     * @var bool
-     */
-    protected $shared = false;
-
-    /**
-     * @var object|null
-     */
-    protected $instance;
-
+    protected ?Closure $factory = null;
+    protected bool $shared = false;
+    protected ?object $instance = null;
 
     /**
      * @var array<string, callable>
      */
-    protected $preparators = [];
+    protected array $preparators = [];
 
     /**
      * @var array<string, mixed>
      */
-    protected $params = [];
+    protected array $params = [];
 
-
-    /**
-     * @var Container
-     */
-    protected $container;
+    protected Container $container;
 
 
     /**
      * Create new instance referencing base container
-     *
-     * @param string|Closure|object|null $target
      */
     public function __construct(
         Container $container,
         string $type,
-        $target,
+        string|object|null $target,
         bool $autoAlias = true,
         bool $ignoreTarget = false
     ) {
@@ -130,11 +102,10 @@ class Binding
 
     /**
      * Prepare factory or instance
-     *
-     * @param string|Closure|object|null $target
      */
-    public function setTarget($target): Binding
-    {
+    public function setTarget(
+        string|object|null $target
+    ): static {
         // Use current type for null target
         if ($target === null) {
             $target = $this->type;
@@ -170,10 +141,8 @@ class Binding
 
     /**
      * Get originally bound target
-     *
-     * @return string|Closure|object|null
      */
-    public function getTarget()
+    public function getTarget(): string|object|null
     {
         if ($this->instance) {
             return $this->instance;
@@ -188,7 +157,7 @@ class Binding
      *
      * @return $this
      */
-    public function setFactory(Closure $factory): Binding
+    public function setFactory(Closure $factory): static
     {
         $oldFactory = $this->factory;
         $this->factory = $factory;
@@ -214,7 +183,7 @@ class Binding
      *
      * @return $this
      */
-    public function alias(string $alias): Binding
+    public function alias(string $alias): static
     {
         // Check for backslashes
         if (false !== strpos($alias, '\\')) {
@@ -273,7 +242,7 @@ class Binding
      *
      * @return $this
      */
-    public function removeAlias(): Binding
+    public function removeAlias(): static
     {
         if ($this->alias !== null) {
             $this->container->unregisterAlias($this->alias);
@@ -297,7 +266,7 @@ class Binding
      *
      * @return $this
      */
-    public function setShared(bool $shared): Binding
+    public function setShared(bool $shared): static
     {
         $this->shared = $shared;
         return $this;
@@ -309,7 +278,7 @@ class Binding
      *
      * @return $this
      */
-    public function prepareWith(callable $callback): Binding
+    public function prepareWith(callable $callback): static
     {
         if (is_array($callback)) {
             $id = spl_object_id($callback[0]);
@@ -342,7 +311,7 @@ class Binding
      *
      * @return $this
      */
-    public function clearPreparators(): Binding
+    public function clearPreparators(): static
     {
         $this->preparators = [];
         return $this;
@@ -352,21 +321,20 @@ class Binding
     /**
      * Add an injected call parameter
      *
-     * @param mixed $value
      * @return $this
      */
-    public function inject(string $name, $value): Binding
-    {
+    public function inject(
+        string $name,
+        mixed $value
+    ): static {
         $this->params[$name] = $value;
         return $this;
     }
 
     /**
      * Get provided injected parameter
-     *
-     * @return mixed
      */
-    public function getParam(string $name)
+    public function getParam(string $name): mixed
     {
         return $this->params[$name] ?? null;
     }
@@ -377,7 +345,7 @@ class Binding
      * @param array<string, mixed> $params
      * @return $this
      */
-    public function addParams(array $params): Binding
+    public function addParams(array $params): static
     {
         foreach ($params as $key => $value) {
             $this->inject($key, $value);
@@ -399,7 +367,7 @@ class Binding
      *
      * @return $this
      */
-    public function removeParam(string $name): Binding
+    public function removeParam(string $name): static
     {
         unset($this->params[$name]);
         return $this;
@@ -410,7 +378,7 @@ class Binding
      *
      * @return $this
      */
-    public function clearParams(): Binding
+    public function clearParams(): static
     {
         $this->params = [];
         return $this;
@@ -422,7 +390,7 @@ class Binding
      *
      * @return $this
      */
-    public function setInstance(object $instance): Binding
+    public function setInstance(object $instance): static
     {
         $this->target = null;
         $this->instance = $this->prepareInstance($instance);
@@ -434,7 +402,7 @@ class Binding
      *
      * @return $this
      */
-    public function forgetInstance(): Binding
+    public function forgetInstance(): static
     {
         $this->instance = null;
         return $this;
@@ -546,7 +514,7 @@ class Binding
      *
      * @return $this
      */
-    public function afterResolving(callable $callback): Binding
+    public function afterResolving(callable $callback): static
     {
         $this->container->afterResolving($this->type, $callback);
         return $this;
@@ -557,7 +525,7 @@ class Binding
      *
      * @return $this
      */
-    public function afterRebinding(callable $callback): Binding
+    public function afterRebinding(callable $callback): static
     {
         $this->container->afterRebinding($this->type, $callback);
         return $this;
