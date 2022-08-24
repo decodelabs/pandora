@@ -1,3 +1,6 @@
+## v0.2.3 (2022-08-24)
+* Fixed ECS issue in Binding
+
 ## v0.2.2 (2022-08-24)
 * Fixed Binding factory instantiation
 
