@@ -41,6 +41,7 @@
     },
     "scripts": {
         "analyze": "phpstan analyze --no-progress",
+        "clear-phpstan": "phpstan clear-result-cache",
         "ecs": "ecs check --no-progress-bar",
         "ecs-fix": "ecs check --no-progress-bar --fix",
         "lint": "parallel-lint src/ ecs.php",
@@ -49,8 +50,9 @@
         "non-ascii": "! LC_ALL=C.UTF-8 find src/ -type f -name \"*.php\" -print0 | xargs -0 -- grep -PHn \"[^ -~]\" | grep -v '// @ignore-non-ascii$'",
         "check": [
             "@composer update",
+            "@clear-phpstan",
             "@analyze",
-            "@ecs",
+            "@ecs-fix",
             "@lint",
             "@eclint",
             "@non-ascii"
