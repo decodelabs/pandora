@@ -55,8 +55,6 @@ class Container implements
 
     protected EventDispatcher $events;
 
-
-
     /**
      * Setup with new event dispatcher
      */
@@ -64,7 +62,6 @@ class Container implements
     {
         $this->events = new EventDispatcher();
     }
-
 
     /**
      * Take a list of provider types and register
@@ -122,7 +119,6 @@ class Container implements
         }
     }
 
-
     /**
      * Get list of registered providers
      *
@@ -132,8 +128,6 @@ class Container implements
     {
         return $this->providers;
     }
-
-
 
     /**
      * Generate an automated alias for a type
@@ -173,9 +167,6 @@ class Container implements
     {
         unset($this->autoAliasers[$name]);
     }
-
-
-
 
     /**
      * Bind a concrete type or instance to interface
@@ -270,7 +261,6 @@ class Container implements
         return $group;
     }
 
-
     /**
      * Bind a single instance concrete type
      */
@@ -314,7 +304,6 @@ class Container implements
     ): Binding {
         return $this->bindToGroup($type, $target)->setShared(true);
     }
-
 
     /**
      * Set an alias for an existing binding
@@ -371,7 +360,6 @@ class Container implements
         return $this->aliases[$alias] ?? null;
     }
 
-
     /**
      * Quietly add $alias to the reference list
      */
@@ -389,8 +377,6 @@ class Container implements
     {
         unset($this->aliases[$alias]);
     }
-
-
 
     /**
      * Build or retrieve an instance
@@ -442,7 +428,6 @@ class Container implements
         return $this;
     }
 
-
     /**
      * Is this type or alias bound?
      */
@@ -453,7 +438,6 @@ class Container implements
             isset($this->aliases[$type]) ||
             isset($this->providers[$type]);
     }
-
 
     /**
      * Remove a current binding
@@ -482,9 +466,6 @@ class Container implements
         unset($this->bindings[$type]);
         return $this;
     }
-
-
-
 
     /**
      * Look up existing binding
@@ -542,7 +523,6 @@ class Container implements
     {
         return $this->bindings;
     }
-
 
     /**
      * Add a preparator to binding
@@ -610,8 +590,6 @@ class Container implements
         return $this;
     }
 
-
-
     /**
      * Reset everything
      *
@@ -625,8 +603,6 @@ class Container implements
 
         return $this;
     }
-
-
 
     /**
      * Create a new instanceof $type
@@ -803,8 +779,6 @@ class Container implements
         return $args;
     }
 
-
-
     /**
      * Force a binding to forget its shared instance
      */
@@ -828,9 +802,6 @@ class Container implements
 
         return $this;
     }
-
-
-
 
     /**
      * Add an event handler for when instances are created
@@ -888,9 +859,6 @@ class Container implements
         });
     }
 
-
-
-
     /**
      * Alias getBinding()
      */
@@ -924,9 +892,6 @@ class Container implements
     {
         $this->remove($type);
     }
-
-
-
 
     /**
      * Alias get()
@@ -970,8 +935,6 @@ class Container implements
     {
         $this->remove($type);
     }
-
-
 
     /**
      * Normalize for dump
