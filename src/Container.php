@@ -26,6 +26,9 @@ use ReflectionNamedType;
 use ReflectionObject;
 use ReflectionParameter;
 
+/**
+ * @implements ArrayAccess<string, mixed>
+ */
 class Container implements
     ContainerInterface,
     ArrayAccess
