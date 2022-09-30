@@ -1,3 +1,8 @@
+## v0.2.4 (2022-09-30)
+* Added ArrayAccess to Container
+* Updated composer check script
+* Updated CI environment
+
 ## v0.2.3 (2022-08-24)
 * Fixed ECS issue in Binding
 
