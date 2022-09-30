@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace DecodeLabs\Pandora;
 
+use ArrayAccess;
 use Closure;
 
 use DecodeLabs\Exceptional;
@@ -25,7 +26,9 @@ use ReflectionNamedType;
 use ReflectionObject;
 use ReflectionParameter;
 
-class Container implements ContainerInterface
+class Container implements
+    ContainerInterface,
+    ArrayAccess
 {
     /**
      * @var array<string, Binding>
@@ -476,6 +479,7 @@ class Container implements ContainerInterface
         unset($this->bindings[$type]);
         return $this;
     }
+
 
 
 
