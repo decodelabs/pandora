@@ -24,7 +24,148 @@ composer require decodelabs/pandora
 
 ## Usage
 
-Coming shortly...
+Instantiate a new `Container` to keep your important objects organised:
+
+```php
+use DecodeLabs\Pandora\Container;
+
+$container = new Container();
+```
+
+Bind instances or classes to interfaces and retrieve them when you need them:
+
+```php
+use My\Library\CoolInterface;
+use My\Library\CoolImplementation;
+
+// Instance
+$container->bind(CoolInterface::class, new CoolImplementation());
+$imp = $container->get(CoolInterface::class);
+
+// Resued class
+$container->bind(CoolInterface::class, CoolImplementation::class);
+// Creates a new instace every call
+$imp = $container->get(CoolInterface::class);
+
+// Shared class
+$container->bindShared(CoolInterface::class, CoolImplementation::class);
+// Stores created instance and returns that each call
+$imp = $container->get(CoolInterface::class);
+
+// Locked instance - will only bind if CoolInterface has not been bound before
+$container->bindLocked(CoolInterface::class, new CoolImplementation());
+$imp = $container->get(CoolInterface::class);
+
+// Bind a factory
+$container->bind(CoolInterface::class, function($container) {
+    return new CoolImplementation();
+})
+```
+
+Groups allow for multiple instances to be bound to one interface:
+
+```php
+// Group multiple bindings
+$container->bindToGroup(CoolInterface::class, new CoolImplementation(1));
+$container->bindToGroup(CoolInterface::class, new CoolImplementation(2));
+$container->bindToGroup(CoolInterface::class, new CoolImplementation(3));
+$group = $container->getGroup(CoolInterface::class); // Contains 2 Implementations
+
+$container->each(CoolInterface::class, function($instance, $container) {
+    // Do something with instance
+});
+```
+
+Aliases can be useful to retrieving objects without repeating the interface:
+
+```php
+// Aliased instance
+$container->bind(CoolInterface::class, new CoolImplementation())->alias('cool.thing');
+$imp = $container->get('cool.thing');
+
+// Or
+$container->registerAlias(CoolInterface::class, 'cool.thing');
+$container->bind(CoolInterface::class, CoolImplementation::class);
+$imp = $container->get('cool.thing');
+```
+
+
+### Retrieval
+
+Parameters can be passed to constructors of implementation classes:
+
+```php
+$imp = $container->getWith(CoolInterface::class, ['list', 'of', 'params']);
+
+// Or inject parameters for later:
+$container->inject(CoolInterface::class, 'paramName', 'paramValue');
+$imp = $container->get(CoolInterface::class);
+```
+
+Containers also have ArrayAccess aliased to get / bind / has / remove:
+
+```php
+$imp = $container[CoolInterface::class];
+```
+
+Access the binding controllers with member names:
+
+```php
+$binding = $container->{CoolInterface::class};
+```
+
+### Events
+
+React to events on the container:
+
+```php
+$container->afterResolving(CoolInterface::class, function($instance, $container) {
+    // Prepare intance
+});
+
+$container->afterRebinding(CoolInterface::class, function($instance, $container) {
+    // Prepare intance again
+});
+
+$imp = $container->get(CoolInterface::class); // Triggers callback once
+```
+
+## Service providers
+
+Implement the `Provider` interface and register it for lazy loaded mass-bindings with virtually no overhead:
+
+```php
+use DecodeLabs\Pandora\Provider;
+use DecodeLabs\Pandora\Container;
+
+class CoolService implements Provider {
+
+    public static function getProvidedServices(): array {
+        return [
+            CoolInterface::class,
+            OtherInterface::class
+        ];
+    }
+
+    public function registerServices(Container $container): void {
+        $container->bindShared(CoolInterface::class, CoolImplementation::class)
+            ->alias('cool.thing');
+
+        // Create factory closure
+        $container->bind(OtherInterface::class, function($container) {
+            return new class implements OtherInterface {
+
+                public function hello(): string {
+                    return 'world';
+                }
+            };
+        });
+    }
+}
+
+
+$conainer->registerProvider(CoolService::class);
+```
 
 ## Licensing
 Pandora is licensed under the MIT License. See [LICENSE](./LICENSE) for the full license text.
