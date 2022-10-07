@@ -7,7 +7,7 @@
 [![PHPStan](https://img.shields.io/badge/PHPStan-enabled-44CC11.svg?longCache=true&style=flat)](https://github.com/phpstan/phpstan)
 [![License](https://img.shields.io/packagist/l/decodelabs/pandora?style=flat)](https://packagist.org/packages/decodelabs/pandora)
 
-### Potent PSR-11 dependency injection container for PHP.
+### Potent PSR-11 dependency injection container for PHP
 
 Pandora offers all of the usual benefits of a solid DI container structure with some extra majic juju sprinkled in.
 
@@ -36,13 +36,13 @@ Bind instances or classes to interfaces and retrieve them when you need them:
 
 ```php
 use My\Library\CoolInterface;
-use My\Library\CoolImplementation;
+use My\Library\CoolImplementation; // Implements CoolInterface
 
 // Instance
 $container->bind(CoolInterface::class, new CoolImplementation());
 $imp = $container->get(CoolInterface::class);
 
-// Resued class
+// Reused class
 $container->bind(CoolInterface::class, CoolImplementation::class);
 // Creates a new instace every call
 $imp = $container->get(CoolInterface::class);
@@ -69,18 +69,19 @@ Groups allow for multiple instances to be bound to one interface:
 $container->bindToGroup(CoolInterface::class, new CoolImplementation(1));
 $container->bindToGroup(CoolInterface::class, new CoolImplementation(2));
 $container->bindToGroup(CoolInterface::class, new CoolImplementation(3));
-$group = $container->getGroup(CoolInterface::class); // Contains 2 Implementations
+$group = $container->getGroup(CoolInterface::class); // Contains 3 Implementations
 
 $container->each(CoolInterface::class, function($instance, $container) {
-    // Do something with instance
+    // Do something with each instance
 });
 ```
 
-Aliases can be useful to retrieving objects without repeating the interface:
+Aliases can be useful when retrieving objects without repeating the interface:
 
 ```php
 // Aliased instance
-$container->bind(CoolInterface::class, new CoolImplementation())->alias('cool.thing');
+$container->bind(CoolInterface::class, new CoolImplementation())
+    ->alias('cool.thing');
 $imp = $container->get('cool.thing');
 
 // Or
@@ -106,12 +107,19 @@ Containers also have ArrayAccess aliased to get / bind / has / remove:
 
 ```php
 $imp = $container[CoolInterface::class];
+
+if(isset($container[CoolInterface::class])) {
+    unset($container[CoolInterface::class]);
+}
 ```
 
 Access the binding controllers with member names:
 
 ```php
 $binding = $container->{CoolInterface::class};
+
+// Or
+$binding = $container->getBinding(CoolInterface::class);
 ```
 
 ### Events
@@ -120,14 +128,18 @@ React to events on the container:
 
 ```php
 $container->afterResolving(CoolInterface::class, function($instance, $container) {
-    // Prepare intance
+    // Prepare instance
 });
 
 $container->afterRebinding(CoolInterface::class, function($instance, $container) {
-    // Prepare intance again
+    // Prepare instance again
 });
 
-$imp = $container->get(CoolInterface::class); // Triggers callback once
+// Triggers resolve callback once
+$imp = $container->get(CoolInterface::class);
+
+// Triggers rebinding callback
+$container->bind(CoolInterface::class, new AnotherImplementation());
 ```
 
 ## Service providers
