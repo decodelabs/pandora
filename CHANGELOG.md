@@ -1,3 +1,6 @@
+## v0.2.5 (2022-10-31)
+* Added get() return type hints
+
 ## v0.2.4 (2022-09-30)
 * Added ArrayAccess to Container
 * Updated composer check script
