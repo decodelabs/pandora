@@ -394,6 +394,10 @@ class Container implements
 
     /**
      * Build or retrieve an instance
+     *
+     * @template T of object
+     * @param string|class-string<T> $type
+     * @phpstan-return ($type is class-string<T> ? T : object)
      */
     public function get(string $type): object
     {
@@ -931,7 +935,9 @@ class Container implements
     /**
      * Alias get()
      *
-     * @param string $type
+     * @template T of object
+     * @param string|class-string<T> $type
+     * @phpstan-return ($type is class-string<T> ? T : object)
      */
     public function offsetGet(mixed $type): object
     {
