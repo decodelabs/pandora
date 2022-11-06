@@ -1,3 +1,5 @@
+* Fixed PHP8.1 testing
+
 ## v0.2.5 (2022-10-31)
 * Added get() return type hints
 
