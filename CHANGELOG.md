@@ -1,3 +1,5 @@
+## v0.2.6 (2022-11-14)
+* Check binding list for class-string $target resolution
 * Fixed PHP8.1 testing
 
 ## v0.2.5 (2022-10-31)
