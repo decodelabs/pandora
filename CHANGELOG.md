@@ -1,3 +1,8 @@
+## v0.2.7 (2022-11-26)
+* Added key-value store to container
+* Added referential type aliases to bound objects
+* Migrated to use effigy in CI workflow
+
 ## v0.2.6 (2022-11-14)
 * Check binding list for class-string $target resolution
 * Fixed PHP8.1 testing

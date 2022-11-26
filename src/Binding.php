@@ -125,6 +125,10 @@ class Binding
                 is_string($target) &&
                 class_exists($target)
             ) {
+                if ($target !== $this->type) {
+                    $this->container->registerAlias($this->type, $target);
+                }
+
                 // Build instance with type string
                 $target = function () use ($target) {
                     if (
@@ -156,6 +160,25 @@ class Binding
         }
 
         return $this->target;
+    }
+
+    /**
+     * Get target type
+     *
+     * @phpstan-return class-string
+     */
+    public function getTargetType(): ?string
+    {
+        if (null === ($target = $this->getTarget())) {
+            return null;
+        }
+
+        if (is_string($target)) {
+            /** @var class-string $target */
+            return $target;
+        }
+
+        return get_class($target);
     }
 
 

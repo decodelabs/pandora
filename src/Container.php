@@ -34,6 +34,11 @@ class Container implements
     ArrayAccess
 {
     /**
+     * @var array<string, mixed>
+     */
+    protected array $store = [];
+
+    /**
      * @var array<string, Binding>
      */
     protected array $bindings = [];
@@ -175,6 +180,24 @@ class Container implements
     }
 
 
+    /**
+     * Set value in key-value store
+     *
+     * @return $this
+     */
+    public function store(
+        string $key,
+        mixed $value
+    ): static {
+        if (isset($this->bindings[$key])) {
+            throw Exceptional::Runtime('Key "' . $key . '" is already registered as a bound type');
+        } elseif (isset($this->aliases[$key])) {
+            throw Exceptional::Runtime('Key "' . $key . '" is already registered as a bound type alias');
+        }
+
+        $this->store[$key] = $value;
+        return $this;
+    }
 
 
     /**
@@ -184,6 +207,10 @@ class Container implements
         string $type,
         string|object|null $target = null
     ): Binding {
+        if (isset($this->store[$type])) {
+            throw Exceptional::Runtime('Type "' . $type . '" is already registered in the key-value store');
+        }
+
         // Create binding
         $binding = new Binding($this, $type, $target);
         $type = $binding->getType();
@@ -193,11 +220,13 @@ class Container implements
             $this->remove($type);
         }
 
+        // Remove type aliases and provider reference
+        unset($this->aliases[$type]);
+        unset($this->providers[$type]);
+
         // Add new binding
         $this->bindings[$type] = $binding;
 
-        // Remove provider reference
-        unset($this->providers[$type]);
 
         if ($oldBinding) {
             // Trigger rebinding event
@@ -379,6 +408,10 @@ class Container implements
         string $type,
         string $alias
     ): void {
+        if (isset($this->store[$alias])) {
+            throw Exceptional::Runtime('Alias "' . $alias . '" is already registered in the key-value store');
+        }
+
         $this->aliases[$alias] = $type;
     }
 
@@ -397,12 +430,34 @@ class Container implements
      *
      * @template T of object
      * @param string|class-string<T> $type
-     * @phpstan-return ($type is class-string<T> ? T : object)
+     * @phpstan-return ($type is class-string<T> ? T : mixed)
      */
-    public function get(string $type): object
+    public function get(string $type): mixed
     {
+        if (array_key_exists($type, $this->store)) {
+            return $this->store[$type];
+        }
+
         return $this->getBinding($type)
             ->getInstance();
+    }
+
+    /**
+     * Get from value store
+     */
+    public function getFromStore(string $key): mixed
+    {
+        return $this->store[$key] ?? null;
+    }
+
+    /**
+     * Get values
+     *
+     * @return array<string, mixed>
+     */
+    public function getStore(): array
+    {
+        return $this->store;
     }
 
     /**
@@ -453,6 +508,7 @@ class Container implements
     public function has(string $type): bool
     {
         return
+            isset($this->store[$type]) ||
             isset($this->bindings[$type]) ||
             isset($this->aliases[$type]) ||
             isset($this->providers[$type]);
@@ -467,18 +523,30 @@ class Container implements
     public function remove(string $type): static
     {
         // Remove provider reference
-        unset($this->providers[$type]);
+        unset(
+            $this->store[$type],
+            $this->providers[$type]
+        );
 
-        // Skip if no binding
-        if (!isset($this->bindings[$type])) {
+
+        // Get binding
+        if (isset($this->bindings[$type])) {
+            $binding = $this->bindings[$type];
+        } elseif (isset($this->aliases[$type])) {
+            $binding = $this->bindings[$this->aliases[$type]];
+        } else {
             return $this;
         }
 
+        $type = $binding->getType();
 
-        $binding = $this->bindings[$type];
 
         // Remove alias
         if (null !== ($alias = $binding->getAlias())) {
+            unset($this->aliases[$alias]);
+        }
+
+        if (null !== ($alias = $binding->getTargetType())) {
             unset($this->aliases[$alias]);
         }
 
@@ -623,6 +691,7 @@ class Container implements
      */
     public function clear(): static
     {
+        $this->store = [];
         $this->bindings = [];
         $this->aliases = [];
         $this->events->clear();
@@ -937,9 +1006,9 @@ class Container implements
      *
      * @template T of object
      * @param string|class-string<T> $type
-     * @phpstan-return ($type is class-string<T> ? T : object)
+     * @phpstan-return ($type is class-string<T> ? T : mixed)
      */
-    public function offsetGet(mixed $type): object
+    public function offsetGet(mixed $type): mixed
     {
         return $this->get($type);
     }
@@ -988,9 +1057,18 @@ class Container implements
     {
         $output = [];
 
+        foreach ($this->store as $key => $value) {
+            $output[$key] = 'value : ' . gettype($value);
+        }
+
         foreach ($this->bindings as $binding) {
-            $alias = $binding->getAlias() ?? $binding->getType();
-            $output[$alias] = $binding->describeInstance();
+            $key = $binding->getType();
+
+            if (null !== ($alias = $binding->getAlias())) {
+                $key = $alias . ' : ' . $key;
+            }
+
+            $output[$key] = $binding->describeInstance();
         }
 
         foreach ($this->providers as $type => $provider) {
