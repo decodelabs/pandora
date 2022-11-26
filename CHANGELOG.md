@@ -1,3 +1,6 @@
+## v0.2.8 (2022-11-26)
+* Fixed binding target resolution infinite loop
+
 ## v0.2.7 (2022-11-26)
 * Added key-value store to container
 * Added referential type aliases to bound objects

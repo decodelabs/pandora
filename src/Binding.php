@@ -135,7 +135,11 @@ class Binding
                         $target !== $this->type &&
                         $this->container->has($target)
                     ) {
-                        return $this->container->get($target);
+                        $binding = $this->container->getBinding($target);
+
+                        if ($binding !== $this) {
+                            return $binding->getInstance();
+                        }
                     }
 
                     return $this->container->buildInstanceOf($target, $this->params);
