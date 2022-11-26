@@ -131,13 +131,6 @@ class Binding
 
                 // Build instance with type string
                 $target = function () use ($target) {
-                    if (
-                        $target !== $this->type &&
-                        $this->container->has($target)
-                    ) {
-                        return $this->container->get($target);
-                    }
-
                     return $this->container->buildInstanceOf($target, $this->params);
                 };
             } else {
