@@ -182,11 +182,13 @@ class Container implements
 
     /**
      * Set value in key-value store
+     *
+     * @return $this
      */
     public function store(
         string $key,
         mixed $value
-    ): void {
+    ): static {
         if (isset($this->bindings[$key])) {
             throw Exceptional::Runtime('Key "' . $key . '" is already registered as a bound type');
         } elseif (isset($this->aliases[$key])) {
@@ -194,6 +196,7 @@ class Container implements
         }
 
         $this->store[$key] = $value;
+        return $this;
     }
 
 
@@ -217,11 +220,13 @@ class Container implements
             $this->remove($type);
         }
 
+        // Remove type aliases and provider reference
+        unset($this->aliases[$type]);
+        unset($this->providers[$type]);
+
         // Add new binding
         $this->bindings[$type] = $binding;
 
-        // Remove provider reference
-        unset($this->providers[$type]);
 
         if ($oldBinding) {
             // Trigger rebinding event
@@ -523,16 +528,25 @@ class Container implements
             $this->providers[$type]
         );
 
-        // Skip if no binding
-        if (!isset($this->bindings[$type])) {
+
+        // Get binding
+        if (isset($this->bindings[$type])) {
+            $binding = $this->bindings[$type];
+        } elseif (isset($this->aliases[$type])) {
+            $binding = $this->bindings[$this->aliases[$type]];
+        } else {
             return $this;
         }
 
+        $type = $binding->getType();
 
-        $binding = $this->bindings[$type];
 
         // Remove alias
         if (null !== ($alias = $binding->getAlias())) {
+            unset($this->aliases[$alias]);
+        }
+
+        if (null !== ($alias = $binding->getTargetType())) {
             unset($this->aliases[$alias]);
         }
 
@@ -1051,7 +1065,7 @@ class Container implements
             $key = $binding->getType();
 
             if (null !== ($alias = $binding->getAlias())) {
-                $key = $alias.' : '.$key;
+                $key = $alias . ' : ' . $key;
             }
 
             $output[$key] = $binding->describeInstance();
