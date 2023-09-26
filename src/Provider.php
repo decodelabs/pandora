@@ -12,7 +12,7 @@ namespace DecodeLabs\Pandora;
 interface Provider
 {
     /**
-     * @phpstan-return array<class-string>
+     * @return array<class-string>
      */
     public static function getProvidedServices(): array;
 

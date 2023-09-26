@@ -22,7 +22,7 @@ use ReflectionFunction;
 class Binding
 {
     /**
-     * @phpstan-var class-string
+     * @var class-string
      */
     protected string $type;
     protected ?string $alias = null;
@@ -92,7 +92,7 @@ class Binding
     /**
      * Get interface type
      *
-     * @phpstan-return class-string
+     * @return class-string
      */
     public function getType(): string
     {
@@ -169,7 +169,7 @@ class Binding
     /**
      * Get target type
      *
-     * @phpstan-return class-string
+     * @return class-string
      */
     public function getTargetType(): ?string
     {
