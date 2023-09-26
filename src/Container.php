@@ -44,7 +44,7 @@ class Container implements
     protected array $bindings = [];
 
     /**
-     * @phpstan-var array<class-string, Provider>
+     * @var array<class-string, Provider>
      */
     protected array $providers = [];
 
@@ -74,7 +74,7 @@ class Container implements
     /**
      * Take a list of provider types and register
      *
-     * @phpstan-param class-string<Provider> ...$providers
+     * @param class-string<Provider> ...$providers
      */
     public function registerProviders(string ...$providers): void
     {
@@ -86,7 +86,7 @@ class Container implements
     /**
      * Instantiate provider and register
      *
-     * @phpstan-param class-string<Provider> $provider
+     * @param class-string<Provider> $provider
      */
     public function registerProvider(string $provider): void
     {
@@ -143,7 +143,7 @@ class Container implements
     /**
      * Generate an automated alias for a type
      *
-     * @phpstan-param class-string $type
+     * @param class-string $type
      */
     public function autoAlias(string $type): ?string
     {
@@ -702,11 +702,11 @@ class Container implements
     /**
      * Create a new instanceof $type
      *
-     * @phpstan-template T of object
-     * @phpstan-param class-string<T> $type
+     * @template T of object
+     * @param class-string<T> $type
      * @param array<string, mixed> $params
-     * @phpstan-param class-string ...$interfaces
-     * @phpstan-return T
+     * @param class-string ...$interfaces
+     * @return T
      */
     public function newInstanceOf(
         string $type,
@@ -736,11 +736,11 @@ class Container implements
     /**
      * Create new instance of type, no looking up binding
      *
-     * @phpstan-template T of object
-     * @phpstan-param class-string<T> $type
+     * @template T of object
+     * @param class-string<T> $type
      * @param array<string, mixed> $params
-     * @phpstan-param class-string ...$interfaces
-     * @phpstan-return T
+     * @param class-string ...$interfaces
+     * @return T
      */
     public function buildInstanceOf(
         string $type,
@@ -767,6 +767,7 @@ class Container implements
         $args = $this->prepareArgs($paramReflectors, $params);
 
         // Create instance
+        /** @var T $output */
         $output = $reflector->newInstanceArgs($args);
 
         // Test interfaces
@@ -778,7 +779,7 @@ class Container implements
     /**
      * Test object for interfaces
      *
-     * @phpstan-param class-string ...$interfaces
+     * @param class-string ...$interfaces
      */
     protected function testInterfaces(
         object $object,

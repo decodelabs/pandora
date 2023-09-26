@@ -1,3 +1,5 @@
+* Converted phpstan doc comments to generic
+
 ## v0.2.8 (2022-11-26)
 * Fixed binding target resolution infinite loop
 
