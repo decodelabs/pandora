@@ -12,6 +12,7 @@ namespace DecodeLabs\Pandora;
 use ArrayAccess;
 use Closure;
 
+use DecodeLabs\Archetype;
 use DecodeLabs\Exceptional;
 //use DecodeLabs\Reactor\Dispatcher as EventDispatcher;
 use DecodeLabs\Pandora\Events as EventDispatcher;
@@ -565,6 +566,8 @@ class Container implements
             return $binding;
         }
 
+
+
         throw Exceptional::{'NotFound,' . NotFoundException::class}(
             $type . ' has not been bound'
         );
@@ -598,6 +601,12 @@ class Container implements
             if (isset($this->bindings[$type])) {
                 return $this->bindings[$type];
             }
+        }
+
+        // Generate from Archetype
+        /** @var class-string<object> $type */
+        if ($class = Archetype::tryResolve($type)) {
+            return $this->bindShared($type, $class);
         }
 
         return null;
@@ -867,7 +876,7 @@ class Container implements
                 $args[] = $reflector->getDefaultValue();
             } else {
                 throw Exceptional::{'Logic,' . ContainerException::class}(
-                    'Binding param $' . $reflector->name . ' cannot be resolved'
+                    'Binding param $' . $reflector->name . ' cannot be resolved for new instance of ' . ($reflector->getDeclaringClass()?->getName() ?? 'unknown')
                 );
             }
         }
