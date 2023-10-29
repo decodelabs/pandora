@@ -1,3 +1,6 @@
+## v0.2.10 (2023-10-29)
+* Added default resolution via Archetype
+
 ## v0.2.9 (2023-09-26)
 * Converted phpstan doc comments to generic
 
