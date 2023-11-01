@@ -263,7 +263,9 @@ class Group extends Binding
     public function getInstance(): object
     {
         foreach ($this->bindings as $binding) {
-            return $binding->getInstance();
+            if ($instance = $binding->getInstance()) {
+                return $instance;
+            }
         }
 
         throw Exceptional::Runtime(
@@ -277,7 +279,9 @@ class Group extends Binding
     public function newInstance(): object
     {
         foreach ($this->bindings as $binding) {
-            return $binding->newInstance();
+            if ($instance = $binding->newInstance()) {
+                return $instance;
+            }
         }
 
         throw Exceptional::Runtime(
@@ -295,7 +299,9 @@ class Group extends Binding
         $output = [];
 
         foreach ($this->bindings as $binding) {
-            $output[] = $binding->getInstance();
+            if ($value = $binding->getInstance()) {
+                $output[] = $value;
+            }
         }
 
         return $output;

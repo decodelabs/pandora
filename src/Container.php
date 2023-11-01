@@ -435,6 +435,26 @@ class Container implements
      */
     public function get(string $type): mixed
     {
+        $output = $this->tryGet($type);
+
+        if ($output === null) {
+            throw Exceptional::Runtime(
+                'Unable to get instance of ' . $type
+            );
+        }
+
+        return $output;
+    }
+
+    /**
+     * Build or retrieve an instance
+     *
+     * @template T of object
+     * @param string|class-string<T> $type
+     * @phpstan-return ($type is class-string<T> ? T|null : mixed)
+     */
+    public function tryGet(string $type): mixed
+    {
         if (array_key_exists($type, $this->store)) {
             return $this->store[$type];
         }
@@ -464,12 +484,38 @@ class Container implements
     /**
      * Build or retrieve an instance using params
      *
+     * @template T of object
+     * @param string|class-string<T> $type
      * @param array<string, mixed> $params
+     * @phpstan-return ($type is class-string<T> ? T : mixed)
      */
     public function getWith(
         string $type,
         array $params = []
-    ): object {
+    ): mixed {
+        $output = $this->tryGetWith($type, $params);
+
+        if ($output === null) {
+            throw Exceptional::Runtime(
+                'Unable to get instance of ' . $type
+            );
+        }
+
+        return $output;
+    }
+
+    /**
+     * Build or retrieve an instance using params
+     *
+     * @template T of object
+     * @param string|class-string<T> $type
+     * @param array<string, mixed> $params
+     * @phpstan-return ($type is class-string<T> ? T|null : mixed)
+     */
+    public function tryGetWith(
+        string $type,
+        array $params = []
+    ): mixed {
         return $this->getBinding($type)
             ->addParams($params)
             ->getInstance();
@@ -478,7 +524,10 @@ class Container implements
     /**
      * Return array of bound instances
      *
+     * @template T of object
+     * @param string|class-string<T> $type
      * @return array<object>
+     * @phpstan-return ($type is class-string<T> ? array<T> : array<object>)
      */
     public function getGroup(string $type): array
     {
@@ -602,6 +651,16 @@ class Container implements
                 return $this->bindings[$type];
             }
         }
+
+
+        // Containers
+        if (
+            $type === ContainerInterface::class ||
+            is_subclass_of($type, ContainerInterface::class)
+        ) {
+            return $this->bindShared($type, $this);
+        }
+
 
         // Generate from Archetype
         /** @var class-string<object> $type */

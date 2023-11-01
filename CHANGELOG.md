@@ -1,3 +1,8 @@
+* Return self for unbound PSR container types
+* Allow null from instance factories
+* Added tryGet() and tryGetWith()
+* Fixed return type hints for getWith()
+
 ## v0.2.10 (2023-10-29)
 * Added default resolution via Archetype
 
