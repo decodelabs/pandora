@@ -445,7 +445,7 @@ class Binding
     /**
      * Build new or return current instance
      */
-    public function getInstance(): object
+    public function getInstance(): ?object
     {
         if ($this->instance) {
             $output = $this->instance;
@@ -471,16 +471,19 @@ class Binding
     /**
      * Create a new instance
      */
-    public function newInstance(): object
+    public function newInstance(): ?object
     {
         if ($this->factory === null) {
-            throw Exceptional::Setup(
-                'Binding for ' . $this->type . ' does not have a factory yet'
-            );
+            return null;
         }
 
-        /** @var object $output */
+        /** @var ?object $output */
         $output = $this->container->call($this->factory, $this->params);
+
+        if ($output === null) {
+            return $output;
+        }
+
         return $this->prepareInstance($output);
     }
 
@@ -491,7 +494,8 @@ class Binding
      */
     public function getGroupInstances(): array
     {
-        return [$this->getInstance()];
+        $output = $this->getInstance();
+        return $output === null ? [] : [$output];
     }
 
     /**
