@@ -77,8 +77,9 @@ class Container implements
      *
      * @param class-string<Provider> ...$providers
      */
-    public function registerProviders(string ...$providers): void
-    {
+    public function registerProviders(
+        string ...$providers
+    ): void {
         foreach ($providers as $provider) {
             $this->registerProvider($provider);
         }
@@ -89,8 +90,9 @@ class Container implements
      *
      * @param class-string<Provider> $provider
      */
-    public function registerProvider(string $provider): void
-    {
+    public function registerProvider(
+        string $provider
+    ): void {
         if (!class_exists($provider)) {
             throw Exceptional::{'Implementation,NotFound'}(
                 'Service provider ' . $provider . ' could not be found'
@@ -111,8 +113,9 @@ class Container implements
     /**
      * Register provider instance
      */
-    public function registerProviderInstance(Provider $provider): void
-    {
+    public function registerProviderInstance(
+        Provider $provider
+    ): void {
         $types = $provider::getProvidedServices();
 
         foreach ($types as $type) {
@@ -146,8 +149,9 @@ class Container implements
      *
      * @param class-string $type
      */
-    public function autoAlias(string $type): ?string
-    {
+    public function autoAlias(
+        string $type
+    ): ?string {
         foreach ($this->autoAliasers as $aliaser) {
             $alias = $aliaser($type);
 
@@ -175,8 +179,9 @@ class Container implements
     /**
      * Unregister auto aliaser
      */
-    public function unregisterAutoAliaser(string $name): void
-    {
+    public function unregisterAutoAliaser(
+        string $name
+    ): void {
         unset($this->autoAliasers[$name]);
     }
 
@@ -362,8 +367,9 @@ class Container implements
     /**
      * Retrieve the alias from binding if it exists
      */
-    public function getAlias(string $type): ?string
-    {
+    public function getAlias(
+        string $type
+    ): ?string {
         // Return existing binding type alias
         if (isset($this->bindings[$type])) {
             return $this->bindings[$type]->getAlias();
@@ -380,24 +386,27 @@ class Container implements
     /**
      * Has an alias been used?
      */
-    public function hasAlias(string $alias): bool
-    {
+    public function hasAlias(
+        string $alias
+    ): bool {
         return isset($this->aliases[$alias]);
     }
 
     /**
      * Has this bound type been aliased?
      */
-    public function isAliased(string $type): bool
-    {
+    public function isAliased(
+        string $type
+    ): bool {
         return in_array($type, $this->aliases);
     }
 
     /**
      * Lookup alias
      */
-    public function getAliasedType(string $alias): ?string
-    {
+    public function getAliasedType(
+        string $alias
+    ): ?string {
         return $this->aliases[$alias] ?? null;
     }
 
@@ -419,8 +428,9 @@ class Container implements
     /**
      * Quietly remove $alias from the reference list
      */
-    public function unregisterAlias(string $alias): void
-    {
+    public function unregisterAlias(
+        string $alias
+    ): void {
         unset($this->aliases[$alias]);
     }
 
@@ -433,8 +443,9 @@ class Container implements
      * @param string|class-string<T> $type
      * @phpstan-return ($type is class-string<T> ? T : mixed)
      */
-    public function get(string $type): mixed
-    {
+    public function get(
+        string $type
+    ): mixed {
         $output = $this->tryGet($type);
 
         if ($output === null) {
@@ -453,8 +464,9 @@ class Container implements
      * @param string|class-string<T> $type
      * @phpstan-return ($type is class-string<T> ? T|null : mixed)
      */
-    public function tryGet(string $type): mixed
-    {
+    public function tryGet(
+        string $type
+    ): mixed {
         if (array_key_exists($type, $this->store)) {
             return $this->store[$type];
         }
@@ -466,8 +478,9 @@ class Container implements
     /**
      * Get from value store
      */
-    public function getFromStore(string $key): mixed
-    {
+    public function getFromStore(
+        string $key
+    ): mixed {
         return $this->store[$key] ?? null;
     }
 
@@ -529,8 +542,9 @@ class Container implements
      * @return array<object>
      * @phpstan-return ($type is class-string<T> ? array<T> : array<object>)
      */
-    public function getGroup(string $type): array
-    {
+    public function getGroup(
+        string $type
+    ): array {
         return $this->getBinding($type)
             ->getGroupInstances();
     }
@@ -555,8 +569,9 @@ class Container implements
     /**
      * Is this type or alias bound?
      */
-    public function has(string $type): bool
-    {
+    public function has(
+        string $type
+    ): bool {
         return
             isset($this->store[$type]) ||
             isset($this->bindings[$type]) ||
@@ -570,8 +585,9 @@ class Container implements
      *
      * @return $this
      */
-    public function remove(string $type): static
-    {
+    public function remove(
+        string $type
+    ): static {
         // Remove provider reference
         unset(
             $this->store[$type],
@@ -609,8 +625,9 @@ class Container implements
     /**
      * Look up existing binding
      */
-    public function getBinding(string $type): Binding
-    {
+    public function getBinding(
+        string $type
+    ): Binding {
         if ($binding = $this->lookupBinding($type)) {
             return $binding;
         }
@@ -625,8 +642,9 @@ class Container implements
     /**
      * Look up binding without throwing an error
      */
-    protected function lookupBinding(string $type): ?Binding
-    {
+    protected function lookupBinding(
+        string $type
+    ): ?Binding {
         // Lookup alias
         if (isset($this->aliases[$type])) {
             $type = $this->aliases[$type];
@@ -728,8 +746,9 @@ class Container implements
      *
      * @return $this
      */
-    public function clearParams(string $type): static
-    {
+    public function clearParams(
+        string $type
+    ): static {
         $this->getBinding($type)->clearParams();
         return $this;
     }
@@ -948,8 +967,9 @@ class Container implements
     /**
      * Force a binding to forget its shared instance
      */
-    public function forgetInstance(string $type): Binding
-    {
+    public function forgetInstance(
+        string $type
+    ): Binding {
         $binding = $this->getBinding($type);
         $binding->forgetInstance();
         return $binding;
@@ -1034,8 +1054,9 @@ class Container implements
     /**
      * Alias getBinding()
      */
-    public function __get(string $type): Binding
-    {
+    public function __get(
+        string $type
+    ): Binding {
         return $this->getBinding($type);
     }
 
@@ -1052,16 +1073,18 @@ class Container implements
     /**
      * Alias has()
      */
-    public function __isset(string $type): bool
-    {
+    public function __isset(
+        string $type
+    ): bool {
         return $this->has($type);
     }
 
     /**
      * Alias remove()
      */
-    public function __unset(string $type): void
-    {
+    public function __unset(
+        string $type
+    ): void {
         $this->remove($type);
     }
 
@@ -1075,8 +1098,9 @@ class Container implements
      * @param string|class-string<T> $type
      * @phpstan-return ($type is class-string<T> ? T : mixed)
      */
-    public function offsetGet(mixed $type): mixed
-    {
+    public function offsetGet(
+        mixed $type
+    ): mixed {
         return $this->get($type);
     }
 
@@ -1098,8 +1122,9 @@ class Container implements
      *
      * @param string $type
      */
-    public function offsetExists(mixed $type): bool
-    {
+    public function offsetExists(
+        mixed $type
+    ): bool {
         return $this->has($type);
     }
 
@@ -1108,8 +1133,9 @@ class Container implements
      *
      * @param string $type
      */
-    public function offsetUnset(mixed $type): void
-    {
+    public function offsetUnset(
+        mixed $type
+    ): void {
         $this->remove($type);
     }
 

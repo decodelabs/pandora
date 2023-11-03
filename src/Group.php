@@ -58,8 +58,9 @@ class Group extends Binding
     /**
      * Noop
      */
-    public function setFactory(Closure $factory): static
-    {
+    public function setFactory(
+        Closure $factory
+    ): static {
         throw Exceptional::Implementation(
             'setFactory is not used for groups'
         );
@@ -89,8 +90,9 @@ class Group extends Binding
      *
      * @return $this
      */
-    public function addBinding(Binding $binding): static
-    {
+    public function addBinding(
+        Binding $binding
+    ): static {
         $this->bindings[] = $binding;
         return $this;
     }
@@ -161,8 +163,9 @@ class Group extends Binding
     /**
      * Look up an injected param
      */
-    public function getParam(string $name): mixed
-    {
+    public function getParam(
+        string $name
+    ): mixed {
         foreach ($this->bindings as $binding) {
             if ($binding->hasParam($name)) {
                 return $binding->getParam($name);
@@ -178,8 +181,9 @@ class Group extends Binding
      * @param array<string, mixed> $params
      * @return $this
      */
-    public function addParams(array $params): static
-    {
+    public function addParams(
+        array $params
+    ): static {
         foreach ($this->bindings as $binding) {
             foreach ($params as $key => $value) {
                 $binding->inject($key, $value);
@@ -192,8 +196,9 @@ class Group extends Binding
     /**
      * Has a specific parameter been injected?
      */
-    public function hasParam(string $name): bool
-    {
+    public function hasParam(
+        string $name
+    ): bool {
         foreach ($this->bindings as $binding) {
             if ($binding->hasParam($name)) {
                 return true;
@@ -208,8 +213,9 @@ class Group extends Binding
      *
      * @return $this
      */
-    public function removeParam(string $name): static
-    {
+    public function removeParam(
+        string $name
+    ): static {
         foreach ($this->bindings as $binding) {
             $binding->removeParam($name);
         }
@@ -236,8 +242,9 @@ class Group extends Binding
     /**
      * Noop
      */
-    public function setInstance(object $instance): static
-    {
+    public function setInstance(
+        object $instance
+    ): static {
         throw Exceptional::Implementation(
             'setFactory is not used for groups'
         );
