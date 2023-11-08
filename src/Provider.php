@@ -16,5 +16,7 @@ interface Provider
      */
     public static function getProvidedServices(): array;
 
-    public function registerServices(Container $container): void;
+    public function registerServices(
+        Container $container
+    ): void;
 }

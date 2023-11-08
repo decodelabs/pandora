@@ -191,8 +191,9 @@ class Binding
      *
      * @return $this
      */
-    public function setFactory(Closure $factory): static
-    {
+    public function setFactory(
+        Closure $factory
+    ): static {
         $oldFactory = $this->factory;
         $this->factory = $factory;
 
@@ -217,8 +218,9 @@ class Binding
      *
      * @return $this
      */
-    public function alias(string $alias): static
-    {
+    public function alias(
+        string $alias
+    ): static {
         // Check for backslashes
         if (false !== strpos($alias, '\\')) {
             throw Exceptional::{'InvalidArgument,' . ContainerException::class}(
@@ -300,8 +302,9 @@ class Binding
      *
      * @return $this
      */
-    public function setShared(bool $shared): static
-    {
+    public function setShared(
+        bool $shared
+    ): static {
         $this->shared = $shared;
         return $this;
     }
@@ -312,8 +315,9 @@ class Binding
      *
      * @return $this
      */
-    public function prepareWith(callable $callback): static
-    {
+    public function prepareWith(
+        callable $callback
+    ): static {
         if (is_array($callback)) {
             $id = spl_object_id($callback[0]);
         } elseif ($callback instanceof Closure) {
@@ -368,8 +372,9 @@ class Binding
     /**
      * Get provided injected parameter
      */
-    public function getParam(string $name): mixed
-    {
+    public function getParam(
+        string $name
+    ): mixed {
         return $this->params[$name] ?? null;
     }
 
@@ -379,8 +384,9 @@ class Binding
      * @param array<string, mixed> $params
      * @return $this
      */
-    public function addParams(array $params): static
-    {
+    public function addParams(
+        array $params
+    ): static {
         foreach ($params as $key => $value) {
             $this->inject($key, $value);
         }
@@ -391,8 +397,9 @@ class Binding
     /**
      * Has a specific parameter been injected?
      */
-    public function hasParam(string $name): bool
-    {
+    public function hasParam(
+        string $name
+    ): bool {
         return array_key_exists($name, $this->params);
     }
 
@@ -401,8 +408,9 @@ class Binding
      *
      * @return $this
      */
-    public function removeParam(string $name): static
-    {
+    public function removeParam(
+        string $name
+    ): static {
         unset($this->params[$name]);
         return $this;
     }
@@ -424,8 +432,9 @@ class Binding
      *
      * @return $this
      */
-    public function setInstance(object $instance): static
-    {
+    public function setInstance(
+        object $instance
+    ): static {
         $this->target = null;
         $this->instance = $this->prepareInstance($instance);
         return $this;
@@ -533,8 +542,9 @@ class Binding
     /**
      * Run instance through preparators
      */
-    protected function prepareInstance(object $instance): object
-    {
+    protected function prepareInstance(
+        object $instance
+    ): object {
         foreach ($this->preparators as $callback) {
             /** @var object $instance */
             $instance = $callback($instance, $this->container);
@@ -558,8 +568,9 @@ class Binding
      *
      * @return $this
      */
-    public function afterResolving(callable $callback): static
-    {
+    public function afterResolving(
+        callable $callback
+    ): static {
         $this->container->afterResolving($this->type, $callback);
         return $this;
     }
@@ -569,8 +580,9 @@ class Binding
      *
      * @return $this
      */
-    public function afterRebinding(callable $callback): static
-    {
+    public function afterRebinding(
+        callable $callback
+    ): static {
         $this->container->afterRebinding($this->type, $callback);
         return $this;
     }

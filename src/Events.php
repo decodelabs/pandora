@@ -47,8 +47,9 @@ class Events
     /**
      * Extract id from callable
      */
-    protected function hashCallable(callable $callback): string
-    {
+    protected function hashCallable(
+        callable $callback
+    ): string {
         if (is_array($callback)) {
             return (string)spl_object_id($callback[0]);
         } elseif ($callback instanceof \Closure) {
@@ -100,8 +101,9 @@ class Events
     /**
      * Is this before event registered?
      */
-    public function hasBefore(string ...$ids): bool
-    {
+    public function hasBefore(
+        string ...$ids
+    ): bool {
         foreach ($ids as $id) {
             if (isset($this->events['<' . $id])) {
                 return true;
@@ -114,8 +116,9 @@ class Events
     /**
      * Is this before event registered?
      */
-    public function hasAfter(string ...$ids): bool
-    {
+    public function hasAfter(
+        string ...$ids
+    ): bool {
         foreach ($ids as $id) {
             if (isset($this->events['>' . $id])) {
                 return true;
@@ -128,8 +131,9 @@ class Events
     /**
      * Is this before event registered?
      */
-    public function has(string ...$ids): bool
-    {
+    public function has(
+        string ...$ids
+    ): bool {
         foreach ($ids as $id) {
             if (
                 isset($this->events['>' . $id]) ||
