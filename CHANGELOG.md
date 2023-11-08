@@ -1,3 +1,4 @@
+## v0.2.12 (2023-11-08)
 * Fixed try*() method binding check
 
 ## v0.2.11 (2023-11-01)
