@@ -446,15 +446,12 @@ class Container implements
     public function get(
         string $type
     ): mixed {
-        $output = $this->tryGet($type);
-
-        if ($output === null) {
-            throw Exceptional::Runtime(
-                'Unable to get instance of ' . $type
-            );
+        if (array_key_exists($type, $this->store)) {
+            return $this->store[$type];
         }
 
-        return $output;
+        return $this->getBinding($type)
+            ->getInstance();
     }
 
     /**
@@ -471,8 +468,8 @@ class Container implements
             return $this->store[$type];
         }
 
-        return $this->getBinding($type)
-            ->getInstance();
+        return $this->lookupBinding($type)
+            ?->getInstance();
     }
 
     /**
@@ -506,15 +503,9 @@ class Container implements
         string $type,
         array $params = []
     ): mixed {
-        $output = $this->tryGetWith($type, $params);
-
-        if ($output === null) {
-            throw Exceptional::Runtime(
-                'Unable to get instance of ' . $type
-            );
-        }
-
-        return $output;
+        return $this->getBinding($type)
+            ->addParams($params)
+            ->getInstance();
     }
 
     /**
@@ -529,9 +520,9 @@ class Container implements
         string $type,
         array $params = []
     ): mixed {
-        return $this->getBinding($type)
-            ->addParams($params)
-            ->getInstance();
+        return $this->lookupBinding($type)
+            ?->addParams($params)
+            ?->getInstance();
     }
 
     /**
@@ -631,8 +622,6 @@ class Container implements
         if ($binding = $this->lookupBinding($type)) {
             return $binding;
         }
-
-
 
         throw Exceptional::{'NotFound,' . NotFoundException::class}(
             $type . ' has not been bound'

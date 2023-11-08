@@ -1,3 +1,5 @@
+* Fixed try*() method binding check
+
 ## v0.2.11 (2023-11-01)
 * Return self for unbound PSR container types
 * Allow null from instance factories
