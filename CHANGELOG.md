@@ -1,3 +1,5 @@
+* Moved to PHP8.1 minimum
+
 ## v0.2.13 (2023-11-10)
 * Switched to Slingshot for function invokation
 
