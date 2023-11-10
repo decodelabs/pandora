@@ -16,16 +16,13 @@ use DecodeLabs\Archetype;
 use DecodeLabs\Exceptional;
 //use DecodeLabs\Reactor\Dispatcher as EventDispatcher;
 use DecodeLabs\Pandora\Events as EventDispatcher;
+use DecodeLabs\Slingshot;
 
 use Psr\Container\ContainerExceptionInterface as ContainerException;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface as NotFoundException;
 
-use ReflectionClass;
-use ReflectionFunction;
-use ReflectionNamedType;
-use ReflectionObject;
-use ReflectionParameter;
+use Throwable;
 
 /**
  * @implements ArrayAccess<string, mixed>
@@ -823,28 +820,14 @@ class Container implements
         array $params = [],
         string ...$interfaces
     ): object {
-        // Create reflection
-        $reflector = new ReflectionClass($type);
-
-        // Check instantiable
-        if (!$reflector->isInstantiable()) {
-            throw Exceptional::{'Logic,' . ContainerException::class}(
-                'Binding target ' . $type . ' cannot be instantiated'
-            );
+        try {
+            $output = (new Slingshot($this, $params))->newInstance($type);
+        } catch (Throwable $e) {
+            throw Exceptional::{'Logic,' . ContainerException::class}([
+                'message' => 'Binding target ' . $type . ' cannot be instantiated',
+                'previous' => $e
+            ]);
         }
-
-        // Shortcut if no constructor
-        if (!$constructor = $reflector->getConstructor()) {
-            return $reflector->newInstance();
-        }
-
-        // Prepare params with reflectors
-        $paramReflectors = $constructor->getParameters();
-        $args = $this->prepareArgs($paramReflectors, $params);
-
-        // Create instance
-        /** @var T $output */
-        $output = $reflector->newInstanceArgs($args);
 
         // Test interfaces
         $this->testInterfaces($output, ...$interfaces);
@@ -880,77 +863,10 @@ class Container implements
         callable $function,
         array $params = []
     ): mixed {
-        if (is_array($function)) {
-            // Reflect array callable
-            $classRef = new ReflectionObject($function[0]);
-            $reflector = $classRef->getMethod($function[1]);
-        } elseif (
-            $function instanceof \Closure ||
-            is_string($function)
-        ) {
-            // Reflect closure / reference
-            $reflector = new ReflectionFunction($function);
-        } else {
-            throw Exceptional::InvalidArgument(
-                'Unable to reflect callback',
-                null,
-                $function
-            );
-        }
-
-        // Prepare params with reflectors
-        $paramReflectors = $reflector->getParameters();
-        $args = $this->prepareArgs($paramReflectors, $params);
-
-        // Call function
-        return call_user_func_array($function, $args);
+        return (new Slingshot($this, $params))->invoke(
+            $function
+        );
     }
-
-    /**
-     * Get params for function
-     *
-     * @param array<ReflectionParameter> $paramReflectors
-     * @param array<string, mixed> $params
-     * @return array<mixed>
-     */
-    protected function prepareArgs(
-        array $paramReflectors,
-        array $params
-    ): array {
-        $args = [];
-
-        foreach ($paramReflectors as $reflector) {
-            if (array_key_exists($reflector->name, $params)) {
-                // Get param by name
-                $args[] = $params[$reflector->name];
-            } elseif (
-                null !== ($type = $reflector->getType()) &&
-                $type instanceof ReflectionNamedType &&
-                !$type->isBuiltin()
-            ) {
-                // Instantiate type from container
-                try {
-                    $args[] = $this->get($type->getName());
-                } catch (NotFoundException $e) {
-                    if ($reflector->isOptional()) {
-                        $args[] = $reflector->getDefaultValue();
-                    } else {
-                        throw $e;
-                    }
-                }
-            } elseif ($reflector->isDefaultValueAvailable()) {
-                // Use default value
-                $args[] = $reflector->getDefaultValue();
-            } else {
-                throw Exceptional::{'Logic,' . ContainerException::class}(
-                    'Binding param $' . $reflector->name . ' cannot be resolved for new instance of ' . ($reflector->getDeclaringClass()?->getName() ?? 'unknown')
-                );
-            }
-        }
-
-        return $args;
-    }
-
 
 
     /**

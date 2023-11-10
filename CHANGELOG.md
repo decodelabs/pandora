@@ -1,3 +1,6 @@
+## v0.2.13 (2023-11-10)
+* Switched to Slingshot for function invokation
+
 ## v0.2.12 (2023-11-08)
 * Fixed try*() method binding check
 
