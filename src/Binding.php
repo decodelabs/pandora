@@ -123,7 +123,10 @@ class Binding
 
             if (
                 is_string($target) &&
-                class_exists($target)
+                (
+                    class_exists($target) ||
+                    interface_exists($target)
+                )
             ) {
                 if ($target !== $this->type) {
                     $this->container->registerAlias($this->type, $target);
