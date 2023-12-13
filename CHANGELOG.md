@@ -1,3 +1,4 @@
+* Added interface Archetype dereferencing
 * Moved to PHP8.1 minimum
 
 ## v0.2.13 (2023-11-10)
