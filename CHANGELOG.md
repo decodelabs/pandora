@@ -1,3 +1,5 @@
+* Updated dependency list
+
 ## v0.2.14 (2023-12-13)
 * Added interface Archetype dereferencing
 * Moved to PHP8.1 minimum

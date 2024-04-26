@@ -13,8 +13,8 @@
         "psr/container": "^2",
 
         "decodelabs/archetype": "^0.2.21",
-        "decodelabs/glitch-support": "^0.4",
         "decodelabs/exceptional": "^0.4",
+        "decodelabs/glitch-support": "^0.4",
         "decodelabs/slingshot": "^0.1.0"
     },
     "require-dev": {
