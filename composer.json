@@ -12,7 +12,7 @@
         "php": "^8.1",
         "psr/container": "^2",
 
-        "decodelabs/archetype": "^0.2.21",
+        "decodelabs/archetype": "^0.2|^0.3",
         "decodelabs/exceptional": "^0.4",
         "decodelabs/glitch-support": "^0.4",
         "decodelabs/slingshot": "^0.1.0"
