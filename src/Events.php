@@ -208,7 +208,7 @@ class Events
      */
     public function removeBefore(
         string $id,
-        callable $callback = null
+        ?callable $callback = null
     ): static {
         if ($callback) {
             unset($this->events['<' . $id][$this->hashCallable($callback)]);
@@ -226,7 +226,7 @@ class Events
      */
     public function removeAfter(
         string $id,
-        callable $callback = null
+        ?callable $callback = null
     ): static {
         if ($callback) {
             unset($this->events['>' . $id][$this->hashCallable($callback)]);
@@ -244,7 +244,7 @@ class Events
      */
     public function remove(
         string $id,
-        callable $callback = null
+        ?callable $callback = null
     ): static {
         $this->removeBefore($id, $callback);
         $this->removeAfter($id, $callback);

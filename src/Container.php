@@ -245,7 +245,7 @@ class Container implements
     public function bindLocked(
         string $type,
         string|object|null $target = null,
-        callable $callback = null
+        ?callable $callback = null
     ): Binding {
         // Return old binding if exists
         if (isset($this->bindings[$type])) {
@@ -319,7 +319,7 @@ class Container implements
     public function bindSharedLocked(
         string $type,
         string|object|null $target = null,
-        callable $callback = null
+        ?callable $callback = null
     ): Binding {
         // Return current binding if exists
         if (isset($this->bindings[$type])) {

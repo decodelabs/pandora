@@ -1,3 +1,5 @@
+## v0.2.16 (2025-05-07)
+* Fixed implicit nullable arguments
 * Updated dependency versions
 
 ## v0.2.15 (2024-04-26)
