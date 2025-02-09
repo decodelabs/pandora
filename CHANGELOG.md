@@ -1,3 +1,5 @@
+* Added PHP8.4 to CI workflow
+
 ## v0.2.16 (2025-05-07)
 * Fixed implicit nullable arguments
 * Updated dependency versions
