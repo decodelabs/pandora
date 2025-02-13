@@ -1,6 +1,12 @@
+## v0.3.0 (2025-02-13)
+* Replaced accessors with property hooks
+* Upgraded PHPStan to v2
+* Tidied boolean logic
+* Fixed Exceptional syntax
 * Added PHP8.4 to CI workflow
+* Made PHP8.4 minimum version
 
-## v0.2.16 (2025-05-07)
+## v0.2.16 (2025-02-07)
 * Fixed implicit nullable arguments
 * Updated dependency versions
 

@@ -10,13 +10,10 @@ declare(strict_types=1);
 namespace DecodeLabs\Pandora;
 
 use Closure;
-
 use DecodeLabs\Exceptional;
 use DecodeLabs\Glitch\Proxy as Glitch;
-
 use Psr\Container\ContainerExceptionInterface as ContainerException;
 use Psr\Container\NotFoundExceptionInterface as NotFoundException;
-
 use ReflectionFunction;
 
 class Binding
@@ -24,25 +21,37 @@ class Binding
     /**
      * @var class-string
      */
-    protected string $type;
-    protected ?string $alias = null;
-    protected string|object|null $target;
+    protected(set) string $type;
+    protected(set) ?string $alias = null;
 
-    protected ?Closure $factory = null;
-    protected bool $shared = false;
+    protected(set) ?Closure $factory = null {
+        get => $this->factory;
+        set {
+            $oldFactory = $this->factory;
+            $this->factory = $value;
+
+            if ($oldFactory !== null) {
+                $this->container->triggerAfterRebinding($this);
+            }
+        }
+    }
+
+    public bool $shared = false;
+
+    protected string|object|null $target;
     protected ?object $instance = null;
 
     /**
-     * @var array<string, callable>
+     * @var array<string,Closure>
      */
     protected array $preparators = [];
 
     /**
-     * @var array<string, mixed>
+     * @var array<string,mixed>
      */
     protected array $params = [];
 
-    protected Container $container;
+    protected(set) Container $container;
 
 
     /**
@@ -62,7 +71,7 @@ class Binding
             !class_exists($type)
         ) {
             throw Exceptional::InvalidArgument(
-                'Binding type must be a valid interface'
+                message: 'Binding type must be a valid interface'
             );
         }
 
@@ -80,24 +89,6 @@ class Binding
         }
     }
 
-
-    /**
-     * Get referenced base container
-     */
-    public function getContainer(): Container
-    {
-        return $this->container;
-    }
-
-    /**
-     * Get interface type
-     *
-     * @return class-string
-     */
-    public function getType(): string
-    {
-        return $this->type;
-    }
 
 
     /**
@@ -122,11 +113,8 @@ class Binding
             }
 
             if (
-                is_string($target) &&
-                (
-                    class_exists($target) ||
-                    interface_exists($target)
-                )
+                class_exists($target) ||
+                interface_exists($target)
             ) {
                 if ($target !== $this->type) {
                     $this->container->registerAlias($this->type, $target);
@@ -148,13 +136,15 @@ class Binding
                     return $this->container->buildInstanceOf($target, $this->params);
                 };
             } else {
-                throw Exceptional::{'InvalidArgument,' . NotFoundException::class}(
-                    'Binding target for ' . $this->type . ' cannot be converted to a factory'
+                throw Exceptional::InvalidArgument(
+                    message: 'Binding target for ' . $this->type . ' cannot be converted to a factory',
+                    interfaces: [NotFoundException::class]
                 );
             }
         }
 
-        return $this->setFactory($target);
+        $this->factory = $target;
+        return $this;
     }
 
     /**
@@ -168,6 +158,8 @@ class Binding
 
         return $this->target;
     }
+
+
 
     /**
      * Get target type
@@ -189,32 +181,6 @@ class Binding
     }
 
 
-    /**
-     * Set resolver factory closure
-     *
-     * @return $this
-     */
-    public function setFactory(
-        Closure $factory
-    ): static {
-        $oldFactory = $this->factory;
-        $this->factory = $factory;
-
-        if ($oldFactory !== null) {
-            $this->container->triggerAfterRebinding($this);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Get resolver factory closure if set
-     */
-    public function getFactory(): ?Closure
-    {
-        return $this->factory;
-    }
-
 
     /**
      * Set an alias for the binding
@@ -226,10 +192,10 @@ class Binding
     ): static {
         // Check for backslashes
         if (false !== strpos($alias, '\\')) {
-            throw Exceptional::{'InvalidArgument,' . ContainerException::class}(
-                'Aliases must not contain \\ character',
-                null,
-                $alias
+            throw Exceptional::InvalidArgument(
+                message: 'Aliases must not contain \\ character',
+                data: $alias,
+                interfaces: [ContainerException::class]
             );
         }
 
@@ -243,8 +209,9 @@ class Binding
             $this->container->hasAlias($alias) &&
             $this->container->getAliasedType($alias) !== $this->type
         ) {
-            throw Exceptional::{'Logic,' . ContainerException::class}(
-                'Alias "' . $alias . '" has already been bound'
+            throw Exceptional::Logic(
+                message: 'Alias "' . $alias . '" has already been bound',
+                interfaces: [ContainerException::class]
             );
         }
 
@@ -258,14 +225,6 @@ class Binding
         $this->container->registerAlias($this->type, $alias);
 
         return $this;
-    }
-
-    /**
-     * Get alias if it's been set
-     */
-    public function getAlias(): ?string
-    {
-        return $this->alias;
     }
 
     /**
@@ -292,26 +251,6 @@ class Binding
     }
 
 
-    /**
-     * Is this item singleton?
-     */
-    public function isShared(): bool
-    {
-        return $this->shared;
-    }
-
-    /**
-     * Make this item a singleton
-     *
-     * @return $this
-     */
-    public function setShared(
-        bool $shared
-    ): static {
-        $this->shared = $shared;
-        return $this;
-    }
-
 
     /**
      * Add a preparator callback
@@ -321,7 +260,10 @@ class Binding
     public function prepareWith(
         callable $callback
     ): static {
-        if (is_array($callback)) {
+        if (
+            is_array($callback) &&
+            is_object($callback[0])
+        ) {
             $id = spl_object_id($callback[0]);
         } elseif ($callback instanceof Closure) {
             $id = spl_object_id($callback);
@@ -329,13 +271,12 @@ class Binding
             $id = $callback;
         } else {
             throw Exceptional::InvalidArgument(
-                'Unable to hash callback',
-                null,
-                $callback
+                message: 'Unable to hash callback',
+                data: $callback
             );
         }
 
-        $this->preparators[(string)$id] = $callback;
+        $this->preparators[(string)$id] = Closure::fromCallable($callback);
         return $this;
     }
 
@@ -515,7 +456,7 @@ class Binding
      */
     public function describeInstance(): string
     {
-        $output = $this->isShared() ? '* ' : '';
+        $output = $this->shared ? '* ' : '';
 
         if (isset($this->instance)) {
             $output .= 'instance : ' . get_class($this->instance);
@@ -554,10 +495,10 @@ class Binding
         }
 
         if (!$instance instanceof $this->type) {
-            throw Exceptional::{'Logic,' . ContainerException::class}(
-                'Binding instance does not implement type ' . $this->type,
-                null,
-                $instance
+            throw Exceptional::Logic(
+                message: 'Binding instance does not implement type ' . $this->type,
+                data: $instance,
+                interfaces: [ContainerException::class]
             );
         }
 

@@ -10,15 +10,33 @@ declare(strict_types=1);
 namespace DecodeLabs\Pandora;
 
 use Closure;
-
 use DecodeLabs\Exceptional;
+use Override;
 
 class Group extends Binding
 {
     /**
-     * @var array<Binding>
+     * Generate a looper factory
+     */
+    protected(set) ?Closure $factory {
+        get {
+            return $this->factory ?? function (): array {
+                $output = [];
+
+                foreach ($this->bindings as $binding) {
+                    $output[] = $binding->getInstance();
+                }
+
+                return $output;
+            };
+        }
+    }
+
+    /**
+     * @var list<Binding>
      */
     protected array $bindings = [];
+
 
 
     /**
@@ -33,55 +51,29 @@ class Group extends Binding
     }
 
 
-
     /**
      * Noop
      */
+    #[Override]
     public function setTarget(
         string|object|null $target
     ): static {
         throw Exceptional::Implementation(
-            'setTarget is not used for groups'
+            message: 'setTarget is not used for groups'
         );
     }
 
     /**
      * Noop
      */
+    #[Override]
     public function getTarget(): string|object|null
     {
         throw Exceptional::Implementation(
-            'getTarget is not used for groups'
+            message: 'getTarget is not used for groups'
         );
     }
 
-    /**
-     * Noop
-     */
-    public function setFactory(
-        Closure $factory
-    ): static {
-        throw Exceptional::Implementation(
-            'setFactory is not used for groups'
-        );
-    }
-
-
-    /**
-     * Generate a looper factory
-     */
-    public function getFactory(): ?Closure
-    {
-        return function (): array {
-            $output = [];
-
-            foreach ($this->bindings as $binding) {
-                $output[] = $binding->getInstance();
-            }
-
-            return $output;
-        };
-    }
 
 
 
@@ -111,6 +103,7 @@ class Group extends Binding
     /**
      * Are there any registered preparator callbacks?
      */
+    #[Override]
     public function hasPreparators(): bool
     {
         if (parent::hasPreparators()) {
@@ -131,6 +124,7 @@ class Group extends Binding
      *
      * @return $this
      */
+    #[Override]
     public function clearPreparators(): static
     {
         $this->preparators = [];
@@ -149,6 +143,7 @@ class Group extends Binding
      *
      * @return $this
      */
+    #[Override]
     public function inject(
         string $name,
         mixed $value
@@ -163,6 +158,7 @@ class Group extends Binding
     /**
      * Look up an injected param
      */
+    #[Override]
     public function getParam(
         string $name
     ): mixed {
@@ -181,6 +177,7 @@ class Group extends Binding
      * @param array<string, mixed> $params
      * @return $this
      */
+    #[Override]
     public function addParams(
         array $params
     ): static {
@@ -196,6 +193,7 @@ class Group extends Binding
     /**
      * Has a specific parameter been injected?
      */
+    #[Override]
     public function hasParam(
         string $name
     ): bool {
@@ -213,6 +211,7 @@ class Group extends Binding
      *
      * @return $this
      */
+    #[Override]
     public function removeParam(
         string $name
     ): static {
@@ -228,6 +227,7 @@ class Group extends Binding
      *
      * @return $this
      */
+    #[Override]
     public function clearParams(): static
     {
         foreach ($this->bindings as $binding) {
@@ -242,11 +242,12 @@ class Group extends Binding
     /**
      * Noop
      */
+    #[Override]
     public function setInstance(
         object $instance
     ): static {
         throw Exceptional::Implementation(
-            'setFactory is not used for groups'
+            message: 'setFactory is not used for groups'
         );
     }
 
@@ -255,6 +256,7 @@ class Group extends Binding
      *
      * @return $this
      */
+    #[Override]
     public function forgetInstance(): static
     {
         foreach ($this->bindings as $binding) {
@@ -267,6 +269,7 @@ class Group extends Binding
     /**
      * Build new or return current instance
      */
+    #[Override]
     public function getInstance(): object
     {
         foreach ($this->bindings as $binding) {
@@ -276,13 +279,14 @@ class Group extends Binding
         }
 
         throw Exceptional::Runtime(
-            'No available bindings'
+            message: 'No available bindings'
         );
     }
 
     /**
      * Create a new instance
      */
+    #[Override]
     public function newInstance(): object
     {
         foreach ($this->bindings as $binding) {
@@ -292,7 +296,7 @@ class Group extends Binding
         }
 
         throw Exceptional::Runtime(
-            'No available bindings'
+            message: 'No available bindings'
         );
     }
 
@@ -301,6 +305,7 @@ class Group extends Binding
      *
      * @return array<object>
      */
+    #[Override]
     public function getGroupInstances(): array
     {
         $output = [];
@@ -317,6 +322,7 @@ class Group extends Binding
     /**
      * Create a simple text representation of instance or factory
      */
+    #[Override]
     public function describeInstance(): string
     {
         return implode("\n", $this->describeInstances());
@@ -327,6 +333,7 @@ class Group extends Binding
      *
      * @return array<string>
      */
+    #[Override]
     public function describeInstances(): array
     {
         $output = [];
