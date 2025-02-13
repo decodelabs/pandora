@@ -9,12 +9,13 @@ declare(strict_types=1);
 
 namespace DecodeLabs\Pandora;
 
+use Closure;
 use DecodeLabs\Exceptional;
 
 class Events
 {
     /**
-     * @var array<string, array<string, callable>>
+     * @var array<string,array<string,Closure>>
      */
     protected array $events = [];
 
@@ -27,7 +28,7 @@ class Events
         string $id,
         callable $callback
     ): static {
-        $this->events['<' . $id][$this->hashCallable($callback)] = $callback;
+        $this->events['<' . $id][$this->hashCallable($callback)] = Closure::fromCallable($callback);
         return $this;
     }
 
@@ -40,7 +41,7 @@ class Events
         string $id,
         callable $callback
     ): static {
-        $this->events['>' . $id][$this->hashCallable($callback)] = $callback;
+        $this->events['>' . $id][$this->hashCallable($callback)] = Closure::fromCallable($callback);
         return $this;
     }
 
@@ -50,17 +51,19 @@ class Events
     protected function hashCallable(
         callable $callback
     ): string {
-        if (is_array($callback)) {
+        if (
+            is_array($callback) &&
+            is_object($callback[0])
+        ) {
             return (string)spl_object_id($callback[0]);
-        } elseif ($callback instanceof \Closure) {
+        } elseif ($callback instanceof Closure) {
             return (string)spl_object_id($callback);
         } elseif (is_string($callback)) {
             return $callback;
         } else {
             throw Exceptional::InvalidArgument(
-                'Unable to hash callback',
-                null,
-                $callback
+                message: 'Unable to hash callback',
+                data: $callback
             );
         }
     }

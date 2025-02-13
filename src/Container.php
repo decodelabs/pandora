@@ -11,13 +11,11 @@ namespace DecodeLabs\Pandora;
 
 use ArrayAccess;
 use Closure;
-
 use DecodeLabs\Archetype;
 use DecodeLabs\Exceptional;
 //use DecodeLabs\Reactor\Dispatcher as EventDispatcher;
 use DecodeLabs\Pandora\Events as EventDispatcher;
 use DecodeLabs\Slingshot;
-
 use Psr\Container\ContainerExceptionInterface as ContainerException;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface as NotFoundException;
@@ -32,27 +30,27 @@ class Container implements
     ArrayAccess
 {
     /**
-     * @var array<string, mixed>
+     * @var array<string,mixed>
      */
     protected array $store = [];
 
     /**
-     * @var array<string, Binding>
+     * @var array<string,Binding>
      */
     protected array $bindings = [];
 
     /**
-     * @var array<class-string, Provider>
+     * @var array<class-string,Provider>
      */
     protected array $providers = [];
 
     /**
-     * @var array<string, string>
+     * @var array<string,string>
      */
     protected array $aliases = [];
 
     /**
-     * @var array<string, callable>
+     * @var array<string,callable>
      */
     protected array $autoAliasers = [];
 
@@ -91,19 +89,13 @@ class Container implements
         string $provider
     ): void {
         if (!class_exists($provider)) {
+            // @phpstan-ignore-next-line
             throw Exceptional::{'Implementation,NotFound'}(
-                'Service provider ' . $provider . ' could not be found'
+                message: 'Service provider ' . $provider . ' could not be found'
             );
         }
 
         $provider = $this->newInstanceOf($provider);
-
-        if (!$provider instanceof Provider) {
-            throw Exceptional::{'Implementation'}(
-                'Service provider ' . $provider . ' does not implement DecodeLabs\\Pandora\\Provider'
-            );
-        }
-
         $this->registerProviderInstance($provider);
     }
 
@@ -132,7 +124,7 @@ class Container implements
     /**
      * Get list of registered providers
      *
-     * @return array<string, Provider>
+     * @return array<string,Provider>
      */
     public function getProviders(): array
     {
@@ -193,9 +185,13 @@ class Container implements
         mixed $value
     ): static {
         if (isset($this->bindings[$key])) {
-            throw Exceptional::Runtime('Key "' . $key . '" is already registered as a bound type');
+            throw Exceptional::Runtime(
+                message: 'Key "' . $key . '" is already registered as a bound type'
+            );
         } elseif (isset($this->aliases[$key])) {
-            throw Exceptional::Runtime('Key "' . $key . '" is already registered as a bound type alias');
+            throw Exceptional::Runtime(
+                message: 'Key "' . $key . '" is already registered as a bound type alias'
+            );
         }
 
         $this->store[$key] = $value;
@@ -211,12 +207,14 @@ class Container implements
         string|object|null $target = null
     ): Binding {
         if (isset($this->store[$type])) {
-            throw Exceptional::Runtime('Type "' . $type . '" is already registered in the key-value store');
+            throw Exceptional::Runtime(
+                message: 'Type "' . $type . '" is already registered in the key-value store'
+            );
         }
 
         // Create binding
         $binding = new Binding($this, $type, $target);
-        $type = $binding->getType();
+        $type = $binding->type;
 
         // Remove old binding
         if ($oldBinding = ($this->bindings[$type] ?? null)) {
@@ -310,7 +308,9 @@ class Container implements
         string $type,
         string|object|null $target = null
     ): Binding {
-        return $this->bind($type, $target)->setShared(true);
+        $binding = $this->bind($type, $target);
+        $binding->shared = true;
+        return $binding;
     }
 
     /**
@@ -344,7 +344,9 @@ class Container implements
         string $type,
         string|object|null $target = null
     ): Binding {
-        return $this->bindToGroup($type, $target)->setShared(true);
+        $binding = $this->bindToGroup($type, $target);
+        $binding->shared = true;
+        return $binding;
     }
 
 
@@ -369,7 +371,7 @@ class Container implements
     ): ?string {
         // Return existing binding type alias
         if (isset($this->bindings[$type])) {
-            return $this->bindings[$type]->getAlias();
+            return $this->bindings[$type]->alias;
         }
 
         // Lookup alias reference
@@ -416,7 +418,9 @@ class Container implements
         string $alias
     ): void {
         if (isset($this->store[$alias])) {
-            throw Exceptional::Runtime('Alias "' . $alias . '" is already registered in the key-value store');
+            throw Exceptional::Runtime(
+                message: 'Alias "' . $alias . '" is already registered in the key-value store'
+            );
         }
 
         $this->aliases[$alias] = $type;
@@ -493,7 +497,7 @@ class Container implements
      *
      * @template T of object
      * @param string|class-string<T> $type
-     * @param array<string, mixed> $params
+     * @param array<string,mixed> $params
      * @phpstan-return ($type is class-string<T> ? T : mixed)
      */
     public function getWith(
@@ -510,7 +514,7 @@ class Container implements
      *
      * @template T of object
      * @param string|class-string<T> $type
-     * @param array<string, mixed> $params
+     * @param array<string,mixed> $params
      * @phpstan-return ($type is class-string<T> ? T|null : mixed)
      */
     public function tryGetWith(
@@ -592,11 +596,11 @@ class Container implements
             return $this;
         }
 
-        $type = $binding->getType();
+        $type = $binding->type;
 
 
         // Remove alias
-        if (null !== ($alias = $binding->getAlias())) {
+        if (null !== ($alias = $binding->alias)) {
             unset($this->aliases[$alias]);
         }
 
@@ -620,8 +624,9 @@ class Container implements
             return $binding;
         }
 
-        throw Exceptional::{'NotFound,' . NotFoundException::class}(
-            $type . ' has not been bound'
+        throw Exceptional::NotFound(
+            message: $type . ' has not been bound',
+            interfaces: [NotFoundException::class]
         );
     }
 
@@ -665,9 +670,8 @@ class Container implements
             return $this->bindShared($type, $this);
         }
 
-
         // Generate from Archetype
-        /** @var class-string<object> $type */
+        // @phpstan-ignore-next-line
         if ($class = Archetype::tryResolve($type)) {
             return $this->bindShared($type, $class);
         }
@@ -678,7 +682,7 @@ class Container implements
     /**
      * Get all binding objects
      *
-     * @return array<string, Binding>
+     * @return array<string,Binding>
      */
     public function getBindings(): array
     {
@@ -716,7 +720,7 @@ class Container implements
     /**
      * Add an array of injection parameters
      *
-     * @param array<string, mixed> $params
+     * @param array<string,mixed> $params
      * @return $this
      */
     public function addParams(
@@ -777,7 +781,7 @@ class Container implements
      *
      * @template T of object
      * @param class-string<T> $type
-     * @param array<string, mixed> $params
+     * @param array<string,mixed> $params
      * @param class-string ...$interfaces
      * @return T
      */
@@ -811,7 +815,7 @@ class Container implements
      *
      * @template T of object
      * @param class-string<T> $type
-     * @param array<string, mixed> $params
+     * @param array<string,mixed> $params
      * @param class-string ...$interfaces
      * @return T
      */
@@ -823,10 +827,11 @@ class Container implements
         try {
             $output = (new Slingshot($this, $params))->newInstance($type);
         } catch (Throwable $e) {
-            throw Exceptional::{'Logic,' . ContainerException::class}([
-                'message' => 'Binding target ' . $type . ' cannot be instantiated',
-                'previous' => $e
-            ]);
+            throw Exceptional::Logic(
+                message: 'Binding target ' . $type . ' cannot be instantiated',
+                previous: $e,
+                interfaces: [ContainerException::class]
+            );
         }
 
         // Test interfaces
@@ -847,7 +852,7 @@ class Container implements
         foreach ($interfaces as $interface) {
             if (!$object instanceof $interface) {
                 throw Exceptional::Implementation(
-                    'Binding target does not implement ' . $interface
+                    message: 'Binding target does not implement ' . $interface
                 );
             }
         }
@@ -856,7 +861,7 @@ class Container implements
     /**
      * Call any function with injected params
      *
-     * @param array<string, mixed> $params
+     * @param array<string,mixed> $params
      * @return mixed
      */
     public function call(
@@ -917,12 +922,17 @@ class Container implements
         Binding $binding,
         object $instance
     ): void {
-        $type = $binding->getType();
+        $type = $binding->type;
 
-        $this->events->withAfter(['resolving.' . $type, 'resolving.*'], function ($events) use ($type, $instance) {
-            $events->triggerAfter('resolving.' . $type, $instance, $this);
-            $events->triggerAfter('resolving.*', $instance, $this);
-        });
+        $this->events->withAfter(
+            ['resolving.' . $type, 'resolving.*'],
+            function (
+                Events $events
+            ) use ($type, $instance) {
+                $events->triggerAfter('resolving.' . $type, $instance, $this);
+                $events->triggerAfter('resolving.*', $instance, $this);
+            }
+        );
     }
 
     /**
@@ -943,14 +953,19 @@ class Container implements
      */
     public function triggerAfterRebinding(Binding $binding): void
     {
-        $type = $binding->getType();
+        $type = $binding->type;
 
-        $this->events->withAfter(['rebinding.' . $type, 'rebinding.*'], function ($events) use ($type, $binding) {
-            $instance = $binding->getInstance();
+        $this->events->withAfter(
+            ['rebinding.' . $type, 'rebinding.*'],
+            function (
+                Events $events
+            ) use ($type, $binding) {
+                $instance = $binding->getInstance();
 
-            $events->triggerAfter('rebinding.' . $type, $instance, $this);
-            $events->triggerAfter('rebinding.*', $instance, $this);
-        });
+                $events->triggerAfter('rebinding.' . $type, $instance, $this);
+                $events->triggerAfter('rebinding.*', $instance, $this);
+            }
+        );
     }
 
 
@@ -1049,7 +1064,7 @@ class Container implements
     /**
      * Normalize for dump
      *
-     * @return array<string, string>
+     * @return array<string,string>
      */
     public function __debugInfo(): array
     {
@@ -1060,9 +1075,9 @@ class Container implements
         }
 
         foreach ($this->bindings as $binding) {
-            $key = $binding->getType();
+            $key = $binding->type;
 
-            if (null !== ($alias = $binding->getAlias())) {
+            if (null !== ($alias = $binding->alias)) {
                 $key = $alias . ' : ' . $key;
             }
 
