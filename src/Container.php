@@ -89,7 +89,6 @@ class Container implements
         string $provider
     ): void {
         if (!class_exists($provider)) {
-            // @phpstan-ignore-next-line
             throw Exceptional::{'Implementation,NotFound'}(
                 message: 'Service provider ' . $provider . ' could not be found'
             );
