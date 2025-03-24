@@ -21,8 +21,8 @@ class Binding
     /**
      * @var class-string
      */
-    protected(set) string $type;
-    protected(set) ?string $alias = null;
+    final protected(set) string $type;
+    final protected(set) ?string $alias = null;
 
     protected(set) ?Closure $factory = null {
         get => $this->factory;
@@ -36,20 +36,20 @@ class Binding
         }
     }
 
-    public bool $shared = false;
+    final public bool $shared = false;
 
-    protected string|object|null $target;
-    protected ?object $instance = null;
+    final protected string|object|null $target;
+    final protected ?object $instance = null;
 
     /**
      * @var array<string,Closure>
      */
-    protected array $preparators = [];
+    final protected array $preparators = [];
 
     /**
      * @var array<string,mixed>
      */
-    protected array $params = [];
+    final protected array $params = [];
 
     protected(set) Container $container;
 

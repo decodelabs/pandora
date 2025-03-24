@@ -1,3 +1,6 @@
+## v0.3.1 (2025-03-24)
+* Fixed PHPStan issues
+
 ## v0.3.0 (2025-02-13)
 * Replaced accessors with property hooks
 * Upgraded PHPStan to v2
