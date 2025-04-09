@@ -15,7 +15,7 @@
         "decodelabs/archetype": "^0.3",
         "decodelabs/exceptional": "^0.5",
         "decodelabs/glitch-support": "^0.5",
-        "decodelabs/slingshot": "^0.1.12"
+        "decodelabs/slingshot": "^0.2"
     },
     "require-dev": {
         "decodelabs/phpstan-decodelabs": "^0.7"
