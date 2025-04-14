@@ -11,8 +11,6 @@
 
 Pandora offers all of the usual benefits of a solid DI container structure with some extra majic juju sprinkled in.
 
-_Get news and updates on the [DecodeLabs blog](https://blog.decodelabs.com)._
-
 ---
 
 
