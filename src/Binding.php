@@ -11,7 +11,7 @@ namespace DecodeLabs\Pandora;
 
 use Closure;
 use DecodeLabs\Exceptional;
-use DecodeLabs\Glitch\Proxy as Glitch;
+use DecodeLabs\Monarch;
 use Psr\Container\ContainerExceptionInterface as ContainerException;
 use Psr\Container\NotFoundExceptionInterface as NotFoundException;
 use ReflectionFunction;
@@ -464,7 +464,17 @@ class Binding
             $output .= 'type : ' . $this->target;
         } elseif ($this->target instanceof Closure) {
             $ref = new ReflectionFunction($this->target);
-            $output .= 'closure @ ' . Glitch::normalizePath((string)$ref->getFileName()) . ' : ' . $ref->getStartLine();
+            $path = (string)$ref->getFileName();
+
+            if(class_exists(Monarch::class)) {
+                // @phpstan-ignore-next-line
+                $path = Monarch::$paths->prettify($path);
+                /** @var string $path */
+            } else {
+                $path = basename($path);
+            }
+
+            $output .= 'closure @ ' . $path . ' : ' . $ref->getStartLine();
         } else {
             $output .= 'null';
         }
