@@ -18,7 +18,7 @@ class Group extends Binding
     /**
      * Generate a looper factory
      */
-    protected(set) ?Closure $factory {
+    public protected(set) ?Closure $factory {
         get {
             return $this->factory ?? function (): array {
                 $output = [];

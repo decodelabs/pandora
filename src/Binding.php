@@ -21,10 +21,10 @@ class Binding
     /**
      * @var class-string
      */
-    final protected(set) string $type;
-    final protected(set) ?string $alias = null;
+    final public protected(set) string $type;
+    final public protected(set) ?string $alias = null;
 
-    protected(set) ?Closure $factory = null {
+    public protected(set) ?Closure $factory = null {
         get => $this->factory;
         set {
             $oldFactory = $this->factory;
@@ -51,7 +51,7 @@ class Binding
      */
     final protected array $params = [];
 
-    protected(set) Container $container;
+    public protected(set) Container $container;
 
 
     /**
@@ -466,7 +466,7 @@ class Binding
             $ref = new ReflectionFunction($this->target);
             $path = (string)$ref->getFileName();
 
-            if(class_exists(Monarch::class)) {
+            if (class_exists(Monarch::class)) {
                 // @phpstan-ignore-next-line
                 $path = Monarch::$paths->prettify($path);
                 /** @var string $path */
