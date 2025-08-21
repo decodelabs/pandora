@@ -16,7 +16,6 @@ use DecodeLabs\Kingdom\PureService;
 use DecodeLabs\Kingdom\Service;
 use DecodeLabs\Monarch;
 use DecodeLabs\Slingshot;
-use Psr\Container\ContainerExceptionInterface as ContainerException;
 use Psr\Container\NotFoundExceptionInterface as NotFoundException;
 use ReflectionClass;
 use ReflectionFunction;

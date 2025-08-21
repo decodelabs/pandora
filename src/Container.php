@@ -13,12 +13,9 @@ use Closure;
 use DecodeLabs\Archetype;
 use DecodeLabs\Exceptional;
 use DecodeLabs\Kingdom\ContainerAdapter;
-use DecodeLabs\Kingdom\Service;
 use DecodeLabs\Slingshot;
-use Psr\Container\ContainerExceptionInterface as ContainerException;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface as NotFoundException;
-use Throwable;
 
 class Container implements
     ContainerInterface,
