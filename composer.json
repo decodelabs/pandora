@@ -12,9 +12,10 @@
         "php": "^8.4",
         "psr/container": "^2.0.2",
 
-        "decodelabs/archetype": "^0.3.10",
+        "decodelabs/archetype": "^0.4",
         "decodelabs/exceptional": "^0.6.1",
-        "decodelabs/slingshot": "^0.2.1"
+        "decodelabs/kingdom": "^0.1",
+        "decodelabs/slingshot": "^0.3"
     },
     "require-dev": {
         "decodelabs/phpstan-decodelabs": "^0.7"
