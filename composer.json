@@ -13,7 +13,7 @@
         "psr/container": "^2.0.2",
 
         "decodelabs/archetype": "^0.4",
-        "decodelabs/exceptional": "^0.6.1",
+        "decodelabs/exceptional": "^0.6.3",
         "decodelabs/kingdom": "^0.1",
         "decodelabs/slingshot": "^0.3"
     },
