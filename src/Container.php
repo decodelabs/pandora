@@ -95,9 +95,14 @@ class Container implements
 
     public function setType(
         string $type,
-        string $instanceType
+        string $instanceType,
+        array $parameters = [],
+        mixed ...$parameterList
     ): void {
-        $this->bind($type, $instanceType);
+        $binding = $this->bind($type, $instanceType);
+        $binding->addParams($parameters);
+        /** @var array<string,mixed> $parameterList */
+        $binding->addParams($parameterList);
     }
 
 
