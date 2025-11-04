@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @package Pandora
- * @license http://opensource.org/licenses/MIT
+ * Pandora
+ * @license https://opensource.org/licenses/MIT
  */
 
 declare(strict_types=1);
